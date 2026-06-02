@@ -43,6 +43,10 @@ body {
   animation: crtBoot 420ms ease-out both;
 }
 
+.screen.loaded {
+  animation: none;
+}
+
 .screen::before {
   content: "";
   position: fixed;
@@ -86,6 +90,10 @@ main {
   animation: textAppear 520ms ease-out both;
 }
 
+main.loaded {
+  animation: none;
+}
+
 .line {
   min-height: 1.42em;
   white-space: pre-wrap;
@@ -108,6 +116,36 @@ main {
   margin: .95em 0;
   white-space: nowrap;
   overflow: hidden;
+}
+
+button {
+  background: none;
+  border: none;
+  color: var(--amber);
+  text-decoration: none;
+  display: block;
+  width: fit-content;
+  font-family: inherit;
+  font-size: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  font-smooth: never;
+  -webkit-font-smoothing: none;
+  text-shadow:
+    0 0 3px rgba(255,179,44,.95),
+    0 0 12px rgba(255,179,44,.3),
+    0 0 24px rgba(255,179,44,.12);
+}
+
+button:hover,
+button:focus {
+  color: #020201;
+  background: var(--amber);
+  outline: none;
+  text-shadow: none;
+  box-shadow: none;
 }
 
 a {
@@ -209,8 +247,8 @@ a:focus {
 </head>
 
 <body>
-<div class="screen">
-  <main aria-label="Albion House Apple II style catalog">
+<div class="screen" id="screen">
+  <main aria-label="Albion House Apple II style catalog" id="main">
     <div class="line">] CATALOG</div>
 
     <section id="content">
@@ -229,9 +267,9 @@ a:focus {
 
       <div class="rule">----------------------------------------</div>
 
-      <a href="https://joellueders.github.io/Killbox/killbox.html">KILLBOX.BAS [ALPHA]</a>
-      <a href="about.html">ABOUT.TXT</a>
-      <a href="mailto:hello@albionhouse.games">CONTACT.TXT</a>
+      <button data-file="killbox">KILLBOX.BAS [ALPHA]</button>
+      <button data-file="about">ABOUT.TXT</button>
+      <button data-file="contact">CONTACT.TXT</button>
       <div class="spacer"></div>
 
       <div class="line">READY.</div>
@@ -240,6 +278,174 @@ a:focus {
   </main>
 </div>
 
+<script>
+// File content data
+const files = {
+  catalog: {
+    title: 'CATALOG',
+    loadCommand: 'CATALOG',
+    content: `
+      <div class="spacer"></div>
 
+      <div class="line title">ALBION HOUSE</div>
+      <div class="line">EST. 1993 ON A COMPUTER FROM 1983</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">TWO COUSINS SPENT SUMMERS MAKING GAMES IN A BASEMENT IN ALBION, NEBRASKA.</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">WE'RE STILL MAKING THEM.</div>
+
+      <div class="rule">----------------------------------------</div>
+
+      <button data-file="killbox">KILLBOX.BAS [ALPHA]</button>
+      <button data-file="about">ABOUT.TXT</button>
+      <button data-file="contact">CONTACT.TXT</button>
+      <div class="spacer"></div>
+
+      <div class="line">READY.</div>
+      <div class="line">]<span class="cursor"></span></div>
+    `
+  },
+  about: {
+    title: 'ABOUT',
+    loadCommand: 'LOAD "ABOUT.TXT"',
+    content: `
+      <div class="spacer"></div>
+
+      <div class="line title">ABOUT ALBION HOUSE</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">ALBION HOUSE IS AN INDEPENDENT GAME STUDIO FOUNDED BY TWO COUSINS.</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">GROWING UP, WE LIVED IN DIFFERENT CITIES BUT SPENT OUR SUMMERS TOGETHER AT OUR GRANDPARENTS' HOUSE IN ALBION, NEBRASKA. IT WAS A BEAUTIFUL OLD PLACE FILLED WITH WINDING HALLS, CREAKY FLOORS, AND HIDDEN ROOMS.</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">WE PLAYED VIDEO GAMES TOGETHER IN THE BASEMENT, LEARNED TO MAKE OUR OWN ON AN APPLE IIE, AND SPENT COUNTLESS HOURS EXPLORING, IMAGINING, AND ASKING, "WHAT IF?"</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">EVENTUALLY, ONE COUSIN WENT TO ART SCHOOL. THE OTHER STUDIED COMPUTER SCIENCE.</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">YEARS LATER, THOSE PATHS CAME BACK TOGETHER.</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">ALBION HOUSE IS NAMED AFTER THE PLACE WHERE IT ALL STARTED.</div>
+
+      <div class="rule">----------------------------------------</div>
+
+      <button data-file="catalog">CATALOG</button>
+      <button data-file="killbox">KILLBOX.BAS [ALPHA]</button>
+      <button data-file="contact">CONTACT.TXT</button>
+      <div class="spacer"></div>
+
+      <div class="line">READY.</div>
+      <div class="line">]<span class="cursor"></span></div>
+    `
+  },
+  killbox: {
+    title: 'KILLBOX',
+    loadCommand: 'LOAD "KILLBOX.BAS"',
+    content: `
+      <div class="spacer"></div>
+
+      <div class="line title">KILLBOX.BAS</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">A FAST-PACED ARCADE GAME OF REFLEXES AND STRATEGY.</div>
+
+      <div class="spacer"></div>
+
+      <div class="rule">----------------------------------------</div>
+
+      <a href="https://joellueders.github.io/Killbox/killbox.html" target="_blank">PLAY NOW</a>
+      <button data-file="catalog">CATALOG</button>
+      <button data-file="about">ABOUT.TXT</button>
+      <button data-file="contact">CONTACT.TXT</button>
+      <div class="spacer"></div>
+
+      <div class="line">READY.</div>
+      <div class="line">]<span class="cursor"></span></div>
+    `
+  },
+  contact: {
+    title: 'CONTACT',
+    loadCommand: 'LOAD "CONTACT.TXT"',
+    content: `
+      <div class="spacer"></div>
+
+      <div class="line title">GET IN TOUCH</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">HAVE A QUESTION? WANT TO COLLABORATE?</div>
+
+      <div class="spacer"></div>
+
+      <a href="mailto:hello@albionhouse.games">HELLO@ALBIONHOUSE.GAMES</a>
+
+      <div class="spacer"></div>
+
+      <div class="rule">----------------------------------------</div>
+
+      <button data-file="catalog">CATALOG</button>
+      <button data-file="about">ABOUT.TXT</button>
+      <button data-file="killbox">KILLBOX.BAS [ALPHA]</button>
+      <div class="spacer"></div>
+
+      <div class="line">READY.</div>
+      <div class="line">]<span class="cursor"></span></div>
+    `
+  }
+};
+
+const screen = document.getElementById('screen');
+const main = document.getElementById('main');
+const contentSection = document.getElementById('content');
+let isInitialLoad = true;
+
+function loadFile(fileName) {
+  const file = files[fileName];
+  if (!file) return;
+
+  // Update content
+  contentSection.innerHTML = `<div class="line">] ${file.loadCommand}</div>${file.content}`;
+
+  // Mark as loaded to remove boot animation
+  if (isInitialLoad) {
+    screen.classList.add('loaded');
+    main.classList.add('loaded');
+    isInitialLoad = false;
+  }
+
+  // Attach event listeners to new buttons
+  attachButtonListeners();
+
+  // Scroll to top
+  window.scrollTo(0, 0);
+}
+
+function attachButtonListeners() {
+  const buttons = contentSection.querySelectorAll('button[data-file]');
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      loadFile(button.dataset.file);
+    });
+  });
+}
+
+// Initialize button listeners on page load
+attachButtonListeners();
+</script>
 </body>
 </html>
