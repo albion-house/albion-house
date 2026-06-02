@@ -10,11 +10,11 @@
 <style>
 :root {
   --bg: #000000;
-  --screen: #001006;
-  --green: #33ff66;
-  --green-bright: #ccffcc;
-  --green-dim: #18aa3d;
-  --inverse-bg: #33ff66;
+  --screen: #0a0603;
+  --amber: #ffb32c;
+  --amber-bright: #ffd67f;
+  --amber-dim: #aa7c1a;
+  --inverse-bg: #ffb32c;
   --inverse-text: #000000;
 }
 
@@ -30,7 +30,7 @@ body {
 }
 
 body {
-  color: var(--green);
+  color: var(--amber);
   font-family: "Apple II Pro", "Courier New", monospace;
   text-transform: uppercase;
   overflow-x: hidden;
@@ -46,8 +46,8 @@ body::before {
   background:
     repeating-linear-gradient(
       to bottom,
-      rgba(51,255,102,.09) 0px,
-      rgba(51,255,102,.09) 1px,
+      rgba(255,179,44,.09) 0px,
+      rgba(255,179,44,.09) 1px,
       transparent 2px,
       transparent 4px
     );
@@ -73,8 +73,8 @@ body::after {
   min-height: 100svh;
   padding: 10px;
   background:
-    radial-gradient(circle at 50% 38%, rgba(51,255,102,.13), transparent 45%),
-    linear-gradient(180deg, #001a09 0%, #000000 100%);
+    radial-gradient(circle at 50% 38%, rgba(255,179,44,.13), transparent 45%),
+    linear-gradient(180deg, #0a0603 0%, #000000 100%);
   animation: appleBoot 620ms ease-out both;
 }
 
@@ -86,34 +86,34 @@ body::after {
   max-width: 980px;
   margin: 0 auto;
   padding: 14px 8px 28px;
-  color: var(--green);
+  color: var(--amber);
   text-shadow:
-    0 0 2px rgba(51,255,102,1),
-    0 0 8px rgba(51,255,102,.55),
-    0 0 22px rgba(51,255,102,.22);
+    0 0 2px rgba(255,179,44,1),
+    0 0 8px rgba(255,179,44,.55),
+    0 0 22px rgba(255,179,44,.22);
   filter: blur(.12px);
 }
 
 .apple-frame {
-  border: 2px solid var(--green);
+  border: 2px solid var(--amber);
   padding: 8px;
   box-shadow:
-    0 0 10px rgba(51,255,102,.38),
-    inset 0 0 18px rgba(51,255,102,.08);
+    0 0 10px rgba(255,179,44,.38),
+    inset 0 0 18px rgba(255,179,44,.08);
 }
 
 .header-box {
   margin: 0 auto 20px;
   padding: 12px 8px;
-  border: 4px double var(--green);
+  border: 4px double var(--amber);
   text-align: center;
   box-shadow:
-    0 0 12px rgba(51,255,102,.32),
-    inset 0 0 12px rgba(51,255,102,.12);
+    0 0 12px rgba(255,179,44,.32),
+    inset 0 0 12px rgba(255,179,44,.12);
 }
 
 .site-title {
-  color: var(--green-bright);
+  color: var(--amber-bright);
   font-size: clamp(18px, 7vw, 42px);
   line-height: 1.14;
 }
@@ -140,11 +140,11 @@ main {
 }
 
 .bright {
-  color: var(--green-bright);
+  color: var(--amber-bright);
 }
 
 .menu-title {
-  color: var(--green-bright);
+  color: var(--amber-bright);
   text-align: center;
   margin: .9em 0 .65em;
 }
@@ -155,7 +155,7 @@ main {
 
 button,
 a {
-  color: var(--green);
+  color: var(--amber);
   background: transparent;
   border: 0;
   border-radius: 0;
@@ -167,9 +167,9 @@ a {
   padding: 0 .2em;
   margin: .18em 0;
   text-shadow:
-    0 0 2px rgba(51,255,102,1),
-    0 0 8px rgba(51,255,102,.48),
-    0 0 18px rgba(51,255,102,.16);
+    0 0 2px rgba(255,179,44,1),
+    0 0 8px rgba(255,179,44,.48),
+    0 0 18px rgba(255,179,44,.16);
 }
 
 .menu button,
@@ -206,32 +206,32 @@ a:focus {
   border: 0;
   outline: 0;
   background: transparent;
-  color: var(--green-bright);
+  color: var(--amber-bright);
   font: inherit;
   text-transform: uppercase;
   caret-color: transparent;
   padding: 0;
   text-shadow:
-    0 0 2px rgba(51,255,102,1),
-    0 0 8px rgba(51,255,102,.55),
-    0 0 22px rgba(51,255,102,.22);
+    0 0 2px rgba(255,179,44,1),
+    0 0 8px rgba(255,179,44,.55),
+    0 0 22px rgba(255,179,44,.22);
 }
 
 .cursor {
   display: inline-block;
   width: .68em;
   height: .9em;
-  background: var(--green);
+  background: var(--amber);
   margin-left: .05em;
   vertical-align: -.08em;
   box-shadow:
-    0 0 5px rgba(51,255,102,1),
-    0 0 18px rgba(51,255,102,.46);
+    0 0 5px rgba(255,179,44,1),
+    0 0 18px rgba(255,179,44,.46);
   animation: blink 1s steps(2,start) infinite;
 }
 
 .output-title {
-  color: var(--green-bright);
+  color: var(--amber-bright);
   text-align: center;
 }
 
@@ -244,12 +244,12 @@ a:focus {
 }
 
 .message {
-  color: var(--green-bright);
+  color: var(--amber-bright);
   margin-top: .6em;
 }
 
 .system-line {
-  color: var(--green-dim);
+  color: var(--amber-dim);
 }
 
 @keyframes appleBoot {
