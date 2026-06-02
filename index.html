@@ -40,6 +40,7 @@ body {
   position: relative;
   min-height: 100vh;
   padding: clamp(36px, 7vw, 82px);
+  animation: crtBoot 420ms ease-out both;
 }
 
 .screen::before {
@@ -82,6 +83,7 @@ main {
   filter: blur(.12px);
   -webkit-font-smoothing: none;
   font-smooth: never;
+  animation: textAppear 520ms ease-out both;
 }
 
 .line {
@@ -140,6 +142,45 @@ a:focus {
 @keyframes blink {
   0%,48% { opacity: 1; }
   49%,100% { opacity: 0; }
+}
+
+@keyframes crtBoot {
+  0% {
+    opacity: 0;
+    filter: brightness(3.2) blur(3px);
+  }
+
+  18% {
+    opacity: 1;
+    filter: brightness(4.2) blur(2px);
+  }
+
+  42% {
+    filter: brightness(1.8) blur(.7px);
+  }
+
+  100% {
+    opacity: 1;
+    filter: brightness(1) blur(0);
+  }
+}
+
+@keyframes textAppear {
+  0%, 40% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen,
+  main,
+  .cursor {
+    animation: none;
+  }
 }
 
 @media (max-width: 720px) {
