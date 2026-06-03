@@ -4,40 +4,40 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Albion House</title>
-
 <link href="https://fonts.cdnfonts.com/css/apple-ii-pro" rel="stylesheet">
-
 <style>
 :root {
-  --bg: #000000;
-  --screen: #001006;
-  --green: #33ff66;
-  --green-bright: #ccffcc;
-  --green-dim: #18aa3d;
-  --inverse-bg: #33ff66;
-  --inverse-text: #000000;
+  --screen-bg: #001207;
+  --screen-edge: #000503;
+  --phosphor: #d8ffe4;
+  --phosphor-soft: #bfffd0;
+  --phosphor-dim: #7fca95;
+  --phosphor-shadow: rgba(190, 255, 210, .18);
+  --cell-font: clamp(12px, min(2.08vw, 2.78vh), 22px);
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 html,
 body {
   margin: 0;
+  width: 100%;
   min-height: 100%;
-  background: var(--bg);
+  background: #020503;
 }
 
 body {
-  color: var(--green);
-  font-family: "Apple II Pro", "Courier New", monospace;
+  color: var(--phosphor);
+  font-family: "Apple II Pro", "Courier New", Courier, monospace;
+  font-weight: 400;
   text-transform: uppercase;
   overflow-x: hidden;
-  background: #000;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+  text-rendering: geometricPrecision;
 }
 
-/* CRT phosphor scanlines */
+/* very light CRT raster, not modern neon scanlines */
 body::before {
   content: "";
   position: fixed;
@@ -46,392 +46,407 @@ body::before {
   background:
     repeating-linear-gradient(
       to bottom,
-      rgba(51,255,102,.09) 0px,
-      rgba(51,255,102,.09) 1px,
-      transparent 2px,
+      rgba(225,255,234,.035) 0,
+      rgba(225,255,234,.035) 1px,
+      rgba(0,0,0,.035) 2px,
       transparent 4px
     );
-  opacity: .45;
-  mix-blend-mode: screen;
+  opacity: .28;
   z-index: 20;
 }
 
-/* Screen curvature/vignette */
+/* soft glass falloff */
 body::after {
   content: "";
   position: fixed;
-  inset: -10%;
+  inset: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 44%, transparent 36%, rgba(0,0,0,.78) 78%);
+    radial-gradient(ellipse at 50% 48%, transparent 0%, transparent 68%, rgba(0,0,0,.30) 100%);
   z-index: 21;
 }
 
-.screen {
-  position: relative;
-  z-index: 1;
-  min-height: 100svh;
-  padding: 10px;
+.viewport {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
   background:
-    radial-gradient(circle at 50% 38%, rgba(51,255,102,.13), transparent 45%),
-    linear-gradient(180deg, #001a09 0%, #000000 100%);
-  animation: appleBoot 620ms ease-out both;
+    radial-gradient(ellipse at 50% 45%, rgba(180,255,196,.045) 0%, rgba(0,18,7,.94) 54%, #000 100%);
+  padding: clamp(6px, 1.5vw, 18px);
 }
 
-.app {
+.apple-screen {
   position: relative;
-  z-index: 10;
-  min-height: calc(100svh - 20px);
-  width: 100%;
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 14px 8px 28px;
-  color: var(--green);
+  width: min(100%, calc(100dvh * 1.42));
+  max-width: 1120px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.025), transparent 15%),
+    radial-gradient(ellipse at 50% 42%, rgba(150,255,170,.055), transparent 58%),
+    var(--screen-bg);
+  border: 1px solid rgba(216,255,228,.08);
+  box-shadow:
+    inset 0 0 28px rgba(0,0,0,.58),
+    0 0 0 1px rgba(0,0,0,.75);
+}
+
+.apple-screen::before {
+  content: "";
+  position: absolute;
+  inset: -6% -3%;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 61%, rgba(0,0,0,.23) 79%, rgba(0,0,0,.55) 100%);
+  z-index: 2;
+}
+
+.apple-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.012), transparent 12%, transparent 88%, rgba(255,255,255,.01));
+  z-index: 3;
+}
+
+.terminal {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: 50%;
+  width: 40ch;
+  height: 24em;
+  transform: translate(-50%, -50%);
+  font-size: var(--cell-font);
+  line-height: .96;
+  letter-spacing: 0;
+  color: var(--phosphor);
   text-shadow:
-    0 0 2px rgba(51,255,102,1),
-    0 0 8px rgba(51,255,102,.55),
-    0 0 22px rgba(51,255,102,.22);
-  filter: blur(.12px);
+    0 0 1px rgba(248,255,248,.70),
+    0 0 3px var(--phosphor-shadow);
 }
 
-.apple-frame {
-  border: 2px solid var(--green);
-  padding: 8px;
-  box-shadow:
-    0 0 10px rgba(51,255,102,.38),
-    inset 0 0 18px rgba(51,255,102,.08);
-}
-
-.header-box {
-  margin: 0 auto 20px;
-  padding: 12px 8px;
-  border: 4px double var(--green);
+.title-box {
+  /*
+    Keep the v6 screen, font, scale, and behavior.
+    Only rebuild the title box so it reads more like the Apple Writer II reference:
+    wide, thick, plain, and software-like instead of logo-like.
+  */
+  width: 38ch;
+  margin: 2.65em auto 1.34em auto;
+  padding: 1.02em 1ch .92em;
+  border: .36em solid var(--phosphor-soft);
+  outline: .11em solid var(--phosphor-soft);
+  outline-offset: -.64em;
   text-align: center;
+  line-height: 1.36;
+  white-space: nowrap;
   box-shadow:
-    0 0 12px rgba(51,255,102,.32),
-    inset 0 0 12px rgba(51,255,102,.12);
+    0 0 2px rgba(216,255,228,.32),
+    inset 0 0 0 .03em rgba(216,255,228,.24);
 }
 
-.site-title {
-  color: var(--green-bright);
-  font-size: clamp(18px, 7vw, 42px);
-  line-height: 1.14;
-}
-
-.subtitle {
-  margin-top: .72em;
-  font-size: clamp(10px, 3.15vw, 21px);
-  line-height: 1.25;
-}
-
-main {
-  font-size: clamp(13px, 4.05vw, 24px);
-  line-height: 1.34;
-  letter-spacing: .015em;
-}
-
-.line {
-  min-height: 1.34em;
-  white-space: pre-wrap;
-}
-
-.spacer {
-  height: 1em;
-}
-
-.bright {
-  color: var(--green-bright);
+.title-box .title {
+  margin-bottom: .68em;
 }
 
 .menu-title {
-  color: var(--green-bright);
-  text-align: center;
-  margin: .9em 0 .65em;
+  margin-left: 4ch;
+  margin-bottom: .72em;
+  white-space: nowrap;
 }
 
 .menu {
-  margin: .6em 0 1em;
-}
-
-button,
-a {
-  color: var(--green);
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  font: inherit;
-  text-transform: uppercase;
-  text-align: left;
-  text-decoration: none;
-  cursor: pointer;
-  padding: 0 .2em;
-  margin: .18em 0;
-  text-shadow:
-    0 0 2px rgba(51,255,102,1),
-    0 0 8px rgba(51,255,102,.48),
-    0 0 18px rgba(51,255,102,.16);
+  margin-left: 3ch;
+  white-space: nowrap;
 }
 
 .menu button,
-.output button,
-.output a {
+.panel button,
+.panel a {
   display: block;
   width: fit-content;
+  color: var(--phosphor);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  line-height: .96;
+  letter-spacing: inherit;
+  text-transform: uppercase;
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  text-shadow: inherit;
+  -webkit-font-smoothing: none;
 }
+
+.menu button + button { margin-top: .28em; }
 
 button:hover,
 button:focus,
-button.active,
 a:hover,
 a:focus {
-  color: var(--inverse-text);
-  background: var(--inverse-bg);
+  color: var(--screen-bg);
+  background: var(--phosphor);
   outline: none;
   text-shadow: none;
 }
 
-.prompt-row {
-  margin-top: 1.15em;
+.help-line {
+  margin-left: 7ch;
+  margin-top: 1.02em;
+  white-space: nowrap;
+}
+
+.prompt-line {
+  margin-left: 5ch;
+  margin-top: .88em;
+  white-space: nowrap;
 }
 
 .input-line {
-  display: flex;
-  align-items: center;
-  gap: .35em;
-  margin-top: .25em;
+  position: relative;
+  margin-left: 5ch;
+  margin-top: .58em;
+  white-space: pre;
+  line-height: .96;
 }
 
-#commandInput {
-  width: min(100%, 13em);
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: var(--green-bright);
-  font: inherit;
-  text-transform: uppercase;
-  caret-color: transparent;
-  padding: 0;
-  text-shadow:
-    0 0 2px rgba(51,255,102,1),
-    0 0 8px rgba(51,255,102,.55),
-    0 0 22px rgba(51,255,102,.22);
-}
+#typedCommand { white-space: pre; }
 
 .cursor {
   display: inline-block;
-  width: .68em;
-  height: .9em;
-  background: var(--green);
-  margin-left: .05em;
+  width: .68ch;
+  height: .84em;
+  background: var(--phosphor);
   vertical-align: -.08em;
-  box-shadow:
-    0 0 5px rgba(51,255,102,1),
-    0 0 18px rgba(51,255,102,.46);
-  animation: blink 1s steps(2,start) infinite;
-}
-
-.output-title {
-  color: var(--green-bright);
-  text-align: center;
-}
-
-.output {
-  padding-bottom: 28px;
-}
-
-.hidden {
-  display: none;
+  margin-left: 0;
+  box-shadow: none;
+  animation: blink 1s steps(2, start) infinite;
 }
 
 .message {
-  color: var(--green-bright);
-  margin-top: .6em;
+  margin-left: 5ch;
+  margin-top: .78em;
+  color: var(--phosphor-soft);
+  white-space: nowrap;
 }
 
-.system-line {
-  color: var(--green-dim);
+.hidden { display: none; }
+
+.terminal.view-panel {
+  height: min(24em, calc(100dvh - 32px));
 }
 
-@keyframes appleBoot {
-  0% {
-    opacity: 0;
-    transform: scaleY(.02);
-    filter: brightness(5) blur(5px);
-  }
+.panel {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1em 0 1.4em;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
 
-  18% {
-    opacity: 1;
-    transform: scaleY(.08);
-    filter: brightness(7) blur(4px);
-  }
+.panel::-webkit-scrollbar { display: none; }
+.panel .line { min-height: .96em; }
+.panel .sys { color: var(--phosphor-dim); }
+.panel .center { text-align: center; }
+.panel .spacer { height: .96em; }
+.panel .indent { margin-left: 2ch; }
+.panel .copy {
+  width: 38ch;
+  margin: 0 0 .96em 0;
+  white-space: normal;
+  line-height: 1.16;
+}
+.panel button { margin-top: 1em; }
 
-  34% {
-    transform: scaleY(1.04);
-    filter: brightness(3.2) blur(2px);
-  }
+#commandInput {
+  display: inline-block;
+  width: 1ch;
+  min-width: 1ch;
+  max-width: 18ch;
+  height: 1em;
+  color: var(--phosphor);
+  background: transparent;
+  border: 0;
+  outline: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  line-height: .96;
+  letter-spacing: inherit;
+  text-transform: uppercase;
+  text-shadow: inherit;
+  caret-color: transparent;
+  vertical-align: baseline;
+  appearance: none;
+  -webkit-appearance: none;
+}
 
-  58% {
-    transform: scaleY(.98);
-    filter: brightness(1.8) blur(.8px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scaleY(1);
-    filter: brightness(1) blur(0);
-  }
+#commandInput::selection {
+  color: var(--screen-bg);
+  background: var(--phosphor);
 }
 
 @keyframes blink {
-  0%,48% { opacity: 1; }
-  49%,100% { opacity: 0; }
+  0%, 48% { opacity: 1; }
+  49%, 100% { opacity: 0; }
+}
+
+@media (max-aspect-ratio: 4 / 3) {
+  .apple-screen { width: calc(100vw - 12px); }
+}
+
+@media (min-width: 601px) and (max-width: 1100px) {
+  :root {
+    --cell-font: clamp(12px, min(2.0vw, 2.62vh), 20px);
+  }
+
+  .viewport {
+    padding: clamp(4px, 1vw, 12px);
+  }
+}
+
+@media (min-width: 1400px) and (min-height: 850px) {
+  :root {
+    --cell-font: clamp(16px, min(1.72vw, 2.46vh), 24px);
+  }
+
+  .apple-screen {
+    max-width: 1240px;
+  }
+}
+
+@media (max-width: 600px) {
+  :root {
+    --cell-font: clamp(9.5px, 2.75vw, 14.5px);
+  }
+
+  .viewport {
+    align-items: start;
+    padding: 6px;
+  }
+
+  .apple-screen {
+    width: 100%;
+    min-height: 100dvh;
+    height: 100dvh;
+    aspect-ratio: auto;
+  }
+
+  .terminal {
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 100dvh;
+  }
+
+  .title-box {
+    margin-top: 2.4em;
+  }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .screen,
-  .cursor {
-    animation: none;
-  }
-}
-
-@media (min-width: 720px) {
-  .screen {
-    padding: clamp(24px, 4vw, 56px);
-  }
-
-  .app {
-    min-height: calc(100vh - clamp(48px, 8vw, 112px));
-    padding: clamp(24px, 4vw, 44px);
-  }
-
-  .apple-frame {
-    padding: clamp(14px, 2vw, 24px);
-  }
-
-  .header-box {
-    max-width: 820px;
-    margin-bottom: clamp(28px, 4vw, 46px);
-    padding: clamp(18px, 3vw, 28px);
-    border-width: clamp(5px, .75vw, 8px);
-  }
-
-  main {
-    max-width: 860px;
-    margin: 0 auto;
-    font-size: clamp(18px, 2.05vw, 26px);
-    line-height: 1.42;
-  }
-
-  .line {
-    min-height: 1.42em;
-  }
-
-  .input-line {
-    display: inline-flex;
-    margin-top: 0;
-  }
-
-  #commandInput {
-    width: 13em;
-  }
+  .cursor { animation: none; }
 }
 </style>
 </head>
-
 <body>
-<div class="screen">
-  <div class="app">
-    <div class="apple-frame">
-      <header class="header-box">
-        <div class="site-title">ALBION HOUSE</div>
-        <div class="subtitle">EST. 1993 ON A COMPUTER FROM 1983</div>
-      </header>
+<div class="viewport">
+  <div class="apple-screen" role="application" aria-label="Albion House Apple IIe interface">
+    <div class="terminal" id="terminal">
+      <section id="homeView">
+        <div class="title-box" aria-label="Albion House title box">
+          <div class="title">ALBION HOUSE</div>
+          <div>COPYRIGHT 1993, ALBION NEBRASKA</div>
+          <div>FOUND IN A BASEMENT. STILL RUNNING.</div>
+        </div>
 
-      <main aria-label="Albion House Apple II style menu">
-        <section id="homeView">
+        <div class="menu-title">FREQUENTLY USED CONTROL CHARACTERS:</div>
 
-          <div class="line">TWO COUSINS SPENT SUMMERS MAKING GAMES IN A BASEMENT IN ALBION, NEBRASKA.</div>
+        <nav class="menu" aria-label="Main menu">
+          <button type="button" data-command="r">[R] RUN KILLBOX PROGRAM.</button>
+          <button type="button" data-command="a">[A] LOAD ABOUT FILE.</button>
+          <button type="button" data-command="c">[C] LOAD CONTACT FILE.</button>
+        </nav>
 
-          <div class="spacer"></div>
+        <div class="help-line">(FOR HELP, ENTER "?")</div>
+        <div class="prompt-line">ENTER YOUR SELECTION OR RETURN</div>
+        <div class="input-line" id="inputLine">]<input id="commandInput" type="text" autocomplete="off" autocapitalize="characters" inputmode="text" aria-label="Command input" /><span class="cursor" aria-hidden="true"></span></div>
+        <div id="message" class="message"></div>
+      </section>
 
-          <div class="line">WE'RE STILL MAKING THEM.</div>
+      <section id="aboutView" class="panel hidden" tabindex="-1">
+        <div class="line sys">LOAD ABOUT FILE.</div>
+        <div class="spacer"></div>
+        <div class="line center">ABOUT ALBION HOUSE</div>
+        <div class="spacer"></div>
 
-          <div class="spacer"></div>
+        <p class="copy">Albion House is a small game studio made by two cousins. We grew up in different cities, but spent our summers together at our grandparents' house in Albion, Nebraska.</p>
 
-          <div class="menu-title">MAIN MENU</div>
+        <p class="copy">It was a beautiful old place filled with winding hallways, hidden rooms, and enough mystery to keep two kids exploring all summer. One day, in a corner of the basement, we made an exciting discovery: under a dust cover was an Apple IIe from 1983.</p>
 
-          <nav class="menu" aria-label="Main menu">
-            <button type="button" data-command="1">1. RUN KILLBOX</button>
-            <button type="button" data-command="2">2. ABOUT ALBION HOUSE</button>
-            <button type="button" data-command="3">3. CONTACT</button>
-          </nav>
+        <p class="copy">We had been playing The Secret of Mana on the SNES. We set down the controllers, turned on the old computer, and taught ourselves to make games in BASIC. That was the spark.</p>
 
-          <div class="prompt-row">
-            <span>ENTER SELECTION, THEN PRESS RETURN:</span>
-            <span class="input-line">
-              <span>]</span>
-              <input id="commandInput" type="text" autocomplete="off" autocapitalize="characters" aria-label="Enter menu selection" />
-              <span class="cursor" aria-hidden="true"></span>
-            </span>
-          </div>
+        <p class="copy">One cousin went to art school. The other studied computer science. Years later, those paths found each other again.</p>
 
-          <div id="message" class="line message"></div>
-        </section>
+        <p class="copy">Albion House is named after the place where it started. We are still making games.</p>
 
-        <section id="aboutView" class="output hidden">
-          <div class="line system-line">]LOAD ABOUT</div>
-          <div class="spacer"></div>
-          <div class="line output-title">ABOUT ALBION HOUSE</div>
-          <div class="spacer"></div>
-          <div class="line">ALBION HOUSE IS AN INDEPENDENT GAME STUDIO</div>
-          <div class="line">FOUNDED BY TWO COUSINS.</div>
-          <div class="spacer"></div>
-          <div class="line">GROWING UP, WE LIVED IN DIFFERENT CITIES</div>
-          <div class="line">BUT SPENT OUR SUMMERS TOGETHER AT OUR</div>
-          <div class="line">GRANDPARENTS' HOUSE IN ALBION, NEBRASKA.</div>
-          <div class="spacer"></div>
-          <div class="line">IT WAS A BEAUTIFUL OLD PLACE FILLED WITH</div>
-          <div class="line">WINDING HALLWAYS, HIDDEN ROOMS, AND</div>
-          <div class="line">ENOUGH MYSTERIES FOR TWO KIDS TO SPEND</div>
-          <div class="line">AN ENTIRE SUMMER EXPLORING.</div>
-          <div class="spacer"></div>
-          <div class="line">WE PLAYED VIDEO GAMES TOGETHER IN THE</div>
-          <div class="line">BASEMENT, LEARNED TO MAKE OUR OWN ON AN</div>
-          <div class="line">APPLE IIE, AND SPENT COUNTLESS HOURS</div>
-          <div class="line">EXPLORING, IMAGINING, AND ASKING,</div>
-          <div class="line">"WHAT IF?"</div>
-          <div class="spacer"></div>
-          <div class="line">EVENTUALLY, ONE COUSIN WENT TO ART SCHOOL.</div>
-          <div class="line">THE OTHER STUDIED COMPUTER SCIENCE.</div>
-          <div class="spacer"></div>
-          <div class="line">YEARS LATER, THOSE PATHS CAME BACK TOGETHER.</div>
-          <div class="spacer"></div>
-          <div class="line">ALBION HOUSE IS NAMED AFTER THE PLACE</div>
-          <div class="line">WHERE IT ALL STARTED.</div>
-          <div class="spacer"></div>
-          <button type="button" data-command="0">0. RETURN TO MENU</button>
-        </section>
+        <button type="button" data-command="home">[RETURN] MAIN MENU</button>
+      </section>
 
-        <section id="contactView" class="output hidden">
-          <div class="line system-line">]LOAD CONTACT</div>
-          <div class="spacer"></div>
-          <div class="line output-title">CONTACT</div>
-          <div class="spacer"></div>
-          <div class="line">QUESTIONS?</div>
-          <div class="line">BUG REPORTS?</div>
-          <div class="line">STRANGE IDEAS?</div>
-          <div class="spacer"></div>
-          <a href="mailto:hello@albionhouse.games">HELLO@ALBIONHOUSE.GAMES</a>
-          <div class="spacer"></div>
-          <button type="button" data-command="0">0. RETURN TO MENU</button>
-        </section>
+      <section id="contactView" class="panel hidden" tabindex="-1">
+        <div class="line sys">LOAD CONTACT FILE.</div>
+        <div class="spacer"></div>
+        <div class="line center">CONTACT ALBION HOUSE</div>
+        <div class="spacer"></div>
+        <div class="line">FOR COLLABORATION, CORRESPONDENCE,</div>
+        <div class="line">PRESS, OR UNUSUAL PROPOSALS:</div>
+        <div class="spacer"></div>
+        <div class="line">SEND ELECTRONIC MAIL TO:</div>
+        <div class="spacer"></div>
+        <a href="mailto:hello@albionhouse.games">HELLO@ALBIONHOUSE.GAMES</a>
+        <div class="spacer"></div>
+        <div class="line">THE OPERATOR WILL RESPOND WHEN THE</div>
+        <div class="line">TERMINAL IS NEXT CHECKED.</div>
+        <div class="spacer"></div>
+        <button type="button" data-command="home">[RETURN] MAIN MENU</button>
+      </section>
 
-        <section id="runView" class="output hidden">
-          <div class="line system-line">]BRUN KILLBOX</div>
-          <div class="spacer"></div>
-          <div class="line">LOADING KILLBOX...</div>
-        </section>
-      </main>
+      <section id="helpView" class="panel hidden" tabindex="-1">
+        <div class="line sys">LOAD HELP FILE.</div>
+        <div class="spacer"></div>
+        <div class="line center">HELP</div>
+        <div class="spacer"></div>
+        <div class="line">VALID COMMANDS:</div>
+        <div class="spacer"></div>
+        <div class="line indent">R&nbsp;&nbsp;RUN KILLBOX PROGRAM.</div>
+        <div class="line indent">A&nbsp;&nbsp;LOAD ABOUT FILE.</div>
+        <div class="line indent">C&nbsp;&nbsp;LOAD CONTACT FILE.</div>
+        <div class="line indent">?&nbsp;&nbsp;DISPLAY HELP.</div>
+        <div class="line indent">0&nbsp;&nbsp;RETURN TO MAIN MENU.</div>
+        <div class="spacer"></div>
+        <div class="line">SYSTEM STATUS:</div>
+        <div class="spacer"></div>
+        <div class="line indent">KILLBOX PROGRAM: ALPHA</div>
+        <div class="line indent">TERMINAL: STILL RUNNING</div>
+        <div class="spacer"></div>
+        <button type="button" data-command="home">[RETURN] MAIN MENU</button>
+      </section>
+
+      <section id="runView" class="panel hidden" tabindex="-1">
+        <div class="line sys">]BRUN KILLBOX</div>
+        <div class="spacer"></div>
+        <div class="line">LOADING KILLBOX PROGRAM.</div>
+      </section>
     </div>
   </div>
 </div>
@@ -440,98 +455,175 @@ a:focus {
 const homeView = document.getElementById("homeView");
 const aboutView = document.getElementById("aboutView");
 const contactView = document.getElementById("contactView");
+const helpView = document.getElementById("helpView");
 const runView = document.getElementById("runView");
-const input = document.getElementById("commandInput");
+const terminal = document.getElementById("terminal");
+const commandInput = document.getElementById("commandInput");
+const inputLine = document.getElementById("inputLine");
 const message = document.getElementById("message");
 
 const KILLBOX_URL = "killbox.html";
+const views = [homeView, aboutView, contactView, helpView, runView];
+let activeView = "home";
 
-const views = [homeView, aboutView, contactView, runView];
-
-function scrollTopNow() {
-  window.scrollTo(0, 0);
+function getCommand() {
+  return commandInput.value.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-function show(view) {
-  views.forEach((item) => item.classList.add("hidden"));
+function updateInputWidth() {
+  const length = Math.max(commandInput.value.length, 1);
+  commandInput.style.width = Math.min(length, 18) + "ch";
+}
+
+function clearCommand() {
+  commandInput.value = "";
+  updateInputWidth();
+}
+
+function focusInput() {
+  if (activeView !== "home") return;
+  setTimeout(() => commandInput.focus({ preventScroll: true }), 0);
+}
+
+function show(view, name) {
+  views.forEach(item => item.classList.add("hidden"));
   view.classList.remove("hidden");
-  scrollTopNow();
+  activeView = name;
+  message.textContent = "";
+  clearCommand();
+
+  if (name === "home") {
+    terminal.classList.remove("view-panel");
+  } else {
+    terminal.classList.add("view-panel");
+    view.scrollTop = 0;
+    setTimeout(() => view.focus({ preventScroll: true }), 0);
+  }
+
+  window.scrollTo(0, 0);
+  focusInput();
 }
 
 function returnHome() {
-  show(homeView);
-  message.textContent = "";
-  input.value = "";
-  if (window.innerWidth >= 720) {
-    setTimeout(() => input.focus({ preventScroll: true }), 0);
-  }
+  show(homeView, "home");
 }
 
 function runKillbox() {
-  show(runView);
+  show(runView, "run");
   setTimeout(() => {
     window.location.href = KILLBOX_URL;
-  }, 500);
+  }, 520);
 }
 
-function normalizeCommand(command) {
-  return String(command).trim().toLowerCase().replace(/\s+/g, " ");
-}
+function handleCommand(value) {
+  const v = String(value || getCommand()).trim().toLowerCase().replace(/\s+/g, " ");
 
-function handleCommand(command) {
-  const value = normalizeCommand(command);
-
-  if (value === "" || value === "0" || value === "menu" || value === "return" || value === "catalog") {
+  if (v === "" || v === "0" || v === "home" || v === "menu" || v === "return" || v === "main menu") {
     returnHome();
     return;
   }
 
-  if (["1", "k", "killbox", "run", "run killbox", "run killbox.bas", "brun killbox", "killbox.bas"].includes(value)) {
+  if (["r", "run", "run killbox", "killbox", "killbox program", "brun killbox", "1"].includes(v)) {
     runKillbox();
     return;
   }
 
-  if (["2", "a", "about", "about.txt", "about albion house", "load about"].includes(value)) {
-    show(aboutView);
+  if (["a", "about", "about file", "load about", "load about file", "2"].includes(v)) {
+    show(aboutView, "about");
     return;
   }
 
-  if (["3", "c", "contact", "contact.txt", "email", "load contact"].includes(value)) {
-    show(contactView);
+  if (["c", "contact", "contact file", "load contact", "load contact file", "email", "3"].includes(v)) {
+    show(contactView, "contact");
+    return;
+  }
+
+  if (["?", "help", "additional functions", "additional functions menu", "4"].includes(v)) {
+    show(helpView, "help");
+    return;
+  }
+
+  if (activeView !== "home") {
+    returnHome();
     return;
   }
 
   message.textContent = "BAD COMMAND OR FILE NAME";
-  input.value = "";
+  clearCommand();
 }
 
-document.querySelectorAll("[data-command]").forEach((item) => {
-  item.addEventListener("click", () => {
+document.querySelectorAll("[data-command]").forEach(item => {
+  item.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
     handleCommand(item.dataset.command);
   });
 });
 
-input.addEventListener("keydown", (event) => {
+document.querySelectorAll("a").forEach(link => {
+  link.addEventListener("click", event => {
+    event.stopPropagation();
+  });
+});
+
+commandInput.addEventListener("input", () => {
+  const cursorPos = commandInput.selectionStart || commandInput.value.length;
+  commandInput.value = commandInput.value.toUpperCase().slice(0, 18);
+  try {
+    commandInput.setSelectionRange(cursorPos, cursorPos);
+  } catch (error) {}
+  updateInputWidth();
+});
+
+commandInput.addEventListener("keydown", event => {
   if (event.key === "Enter") {
-    handleCommand(input.value);
+    event.preventDefault();
+    handleCommand();
+    return;
+  }
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    returnHome();
   }
 });
 
-document.addEventListener("keydown", (event) => {
-  if (event.target === input) return;
+inputLine.addEventListener("click", event => {
+  event.stopPropagation();
+  focusInput();
+});
 
-  const key = event.key.toLowerCase();
+document.addEventListener("keydown", event => {
+  if (event.target === commandInput) return;
+  if (event.ctrlKey || event.metaKey || event.altKey) return;
 
-  if (key === "1" || key === "k") handleCommand("1");
-  if (key === "2" || key === "a") handleCommand("2");
-  if (key === "3" || key === "c") handleCommand("3");
-  if (key === "escape" || key === "0") handleCommand("0");
+  if (event.key === "Enter") {
+    event.preventDefault();
+    handleCommand();
+    return;
+  }
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    returnHome();
+    return;
+  }
+
+  if (event.key.length === 1 && activeView === "home") {
+    event.preventDefault();
+    commandInput.value = (commandInput.value + event.key.toUpperCase()).slice(0, 18);
+    updateInputWidth();
+    focusInput();
+  }
+});
+
+document.addEventListener("click", event => {
+  if (event.target.closest("button, a")) return;
+  focusInput();
 });
 
 window.addEventListener("load", () => {
-  if (window.innerWidth >= 720) {
-    input.focus({ preventScroll: true });
-  }
+  updateInputWidth();
 });
 </script>
 </body>
