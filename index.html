@@ -46,6 +46,73 @@ function clearBuf(){for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)buf[r][c]={ch:
 function clearRow(r){for(let c=0;c<COLS;c++)buf[r][c]={ch:' ',mode:0};}
 
 let cursorOn=true,cursorR=0,cursorC=0,showCursor=false,hoverLink=null,inputBuffer='',bootComplete=false;
+let activeScreen='boot',aboutScroll=0,aboutLines=[];
+
+function wrapText(text,width){
+  const words=text.toUpperCase().split(/\s+/).filter(Boolean);
+  const lines=[];
+  let line='';
+  for(const word of words){
+    if(!line){
+      line=word;
+      continue;
+    }
+    if((line+' '+word).length<=width){
+      line+=' '+word;
+    }else{
+      lines.push(line);
+      line=word;
+    }
+  }
+  if(line) lines.push(line);
+  return lines;
+}
+
+function buildAboutLines(){
+  const lines=['] LOAD "ABOUT.TXT"','', 'ABOUT ALBION HOUSE',''];
+  lines.push(...wrapText('Albion House is an independent game studio founded by two cousins.', COLS));
+  lines.push('');
+  lines.push(...wrapText("Growing up, we lived in different cities but spent our summers together at our grandparents' house in Albion, Nebraska. It was a beautiful old place filled with winding hallways, hidden rooms, and enough mysteries for two fish out of water to spend an entire summer exploring.", COLS));
+  lines.push('');
+  lines.push(...wrapText('We played video games in the basement, learned to make our own on an Apple IIe, and spent countless hours imagining, and asking, "What if?"', COLS));
+  lines.push('');
+  lines.push(...wrapText('Eventually, one cousin went to art school. The other studied computer science. Years later, those paths came back together.', COLS));
+  lines.push('');
+  lines.push(...wrapText('Albion House is named after the place where it all started.', COLS));
+  lines.push('');
+  lines.push(RULE);
+  lines.push('[CATALOG]   [KILLBOX]   [CONTACT]');
+  return lines;
+}
+
+function renderAbout(){
+  clearBuf();
+  clearLinks();
+  showCursor=false;
+  const viewRows=21;
+  const maxScroll=Math.max(0, aboutLines.length-viewRows);
+  aboutScroll=Math.max(0, Math.min(aboutScroll, maxScroll));
+  const visible=aboutLines.slice(aboutScroll, aboutScroll+viewRows);
+  visible.forEach((line, idx)=>{
+    if(line===RULE){
+      writeStr(idx,0,line,2);
+    }else if(line==='ABOUT ALBION HOUSE'){
+      writeStr(idx,0,line,1);
+    }else if(line==='[CATALOG]   [KILLBOX]   [CONTACT]'){
+      writeStr(idx,0,'[CATALOG]',1);writeStr(idx,12,'[KILLBOX]',1);writeStr(idx,24,'[CONTACT]',1);
+      addLink(idx,0,9,showCatalog);addLink(idx,12,9,showKillbox);addLink(idx,24,9,showContact);
+    }else{
+      writeStr(idx,0,line,idx===0?2:0);
+    }
+  });
+  writeStr(22,0,'SCROLL FOR MORE',2);
+  writeStr(23,0,']',2);
+  setCell(23,1,' ',2);
+  cursorR=23;
+  cursorC=2;
+  showCursor=true;
+  renderFrame();
+}
 
 function drawChar(r,c,ch,mode){
   const x=c*CX,y=r*CY;
@@ -153,6 +220,12 @@ canvas.addEventListener('mouseleave',()=>{
   }
 });
 canvas.addEventListener('click',e=>{canvas.focus();const h=hitLink(e);if(h)h.fn();});
+canvas.addEventListener('wheel',e=>{
+  if(activeScreen!=='about') return;
+  e.preventDefault();
+  aboutScroll += e.deltaY > 0 ? 2 : -2;
+  renderAbout();
+},{passive:false});
 
 function runCommand(cmd){
   const command=normalizeCommand(cmd);
@@ -185,6 +258,18 @@ function runCommand(cmd){
 window.addEventListener('keydown',e=>{
   if(!bootComplete) return;
   if(e.metaKey||e.ctrlKey||e.altKey) return;
+  if(activeScreen==='about' && (e.key==='ArrowDown' || e.key==='PageDown' || e.key===' ')){
+    e.preventDefault();
+    aboutScroll += e.key==='ArrowDown' ? 1 : 2;
+    renderAbout();
+    return;
+  }
+  if(activeScreen==='about' && (e.key==='ArrowUp' || e.key==='PageUp')){
+    e.preventDefault();
+    aboutScroll -= e.key==='ArrowUp' ? 1 : 2;
+    renderAbout();
+    return;
+  }
   if(e.key==='Backspace'){
     e.preventDefault();
     inputBuffer=inputBuffer.slice(0,-1);
@@ -215,6 +300,7 @@ window.addEventListener('keydown',e=>{
 });
 
 function boot(){
+  activeScreen='boot';
   bootSequence();
 }
 
@@ -248,6 +334,7 @@ async function bootSequence(){
 }
 
 async function showCatalog(animated=false){
+  activeScreen='catalog';
   clearLinks();clearBuf();showCursor=false;inputBuffer='';
   const steps=[
     ()=>writeStr(0,0,'] CATALOG',2),
@@ -282,29 +369,14 @@ async function showCatalog(animated=false){
 }
 
 function showAbout(){
-  clearLinks();clearBuf();showCursor=false;inputBuffer='';
-  writeStr(0,0,'] LOAD "ABOUT.TXT"',2);
-  writeStr(2,0,'ABOUT ALBION HOUSE',1);
-  writeStr(4,0,'ALBION HOUSE IS MATADORIAN GRAY');
-  writeStr(5,0,'AND CODEKILN.');
-  writeStr(7,0,"WE GREW UP IN DIFFERENT CITIES.");
-  writeStr(8,0,"SUMMERS WERE IN ALBION, NEBRASKA.");
-  writeStr(9,0,"THERE WAS AN APPLE IIE IN THE BASEMENT.");
-  writeStr(10,0,"WE TAUGHT OURSELVES TO PROGRAM THERE.");
-  writeStr(12,0,"ONE OF US WENT INTO ART.");
-  writeStr(13,0,"ONE INTO CODE.");
-  writeStr(15,0,"WE MAKE GAMES THAT HOLD MYSTERY,");
-  writeStr(16,0,"HOPE, AND WONDER.");
-  writeStr(18,0,"WE'RE MAKING THE GAMES WE WANTED");
-  writeStr(19,0,"TO PLAY.");
-  writeStr(21,0,RULE,2);
-  writeStr(22,0,'[CATALOG]',1);writeStr(22,12,'[KILLBOX]',1);writeStr(22,24,'[CONTACT]',1);
-  addLink(22,0,9,showCatalog);addLink(22,12,9,showKillbox);addLink(22,24,9,showContact);
-  syncPrompt();
-  renderFrame();
+  activeScreen='about';
+  aboutLines=buildAboutLines();
+  aboutScroll=0;
+  renderAbout();
 }
 
 function showKillbox(){
+  activeScreen='killbox';
   clearLinks();clearBuf();showCursor=false;inputBuffer='';
   writeStr(0,0,'] LOAD "KILLBOX.BAS"',2);
   writeStr(2,0,'KILLBOX.BAS       V0.1',1);
@@ -322,6 +394,7 @@ function showKillbox(){
 }
 
 function showContact(){
+  activeScreen='contact';
   clearLinks();clearBuf();showCursor=false;inputBuffer='';
   writeStr(0,0,'] LOAD "CONTACT.TXT"',2);
   writeStr(2,0,'GET IN TOUCH',1);
