@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Albion House</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;min-height:100vh;background:#111008;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.wrap{position:relative;width:min(98vw, calc(96vh * 0.88))}
+.bezel{width:100%;aspect-ratio:700/580;background:linear-gradient(155deg,#3d3020 0%,#1c1408 50%,#2c1e0a 100%);border-radius:14px 14px 20px 20px;padding:20px 22px 52px 22px;box-shadow:inset 0 1px 0 rgba(255,200,80,.07),0 8px 60px rgba(0,0,0,.95),0 2px 0 #0a0806;position:relative}
+.bezel-label{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);font-family:Helvetica,Arial,sans-serif;font-size:9px;letter-spacing:.22em;color:#4a3515;text-transform:uppercase;white-space:nowrap}
+.screen-wrap{width:100%;height:100%;background:#000;border-radius:4px;overflow:hidden;position:relative}
+canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;cursor:default}
+.scanlines{position:absolute;inset:0;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.18) 0px,rgba(0,0,0,.18) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:2}
+.glare{position:absolute;inset:0;background:radial-gradient(ellipse at 28% 18%, rgba(255,255,255,.028) 0%, transparent 52%);pointer-events:none;z-index:3;border-radius:4px}
+.led{position:absolute;bottom:5px;right:9px;width:5px;height:5px;border-radius:50%;background:#e05000;box-shadow:0 0 5px #c03000;z-index:10}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bezel">
+    <div class="screen-wrap" id="sw">
+      <canvas id="c" aria-label="Albion House Apple IIe terminal"></canvas>
+      <div class="scanlines"></div>
+      <div class="glare"></div>
+    </div>
+    <div class="led"></div>
+    <div class="bezel-label">Apple IIe &nbsp;&middot;&nbsp; Albion House</div>
+  </div>
+</div>
+<script>
+const FONT={"  ":[0,0,0,0,0,0,0,0],"!":[8,8,8,8,8,0,8,0],'"':[20,20,20,0,0,0,0,0],"#":[20,20,62,20,62,20,20,0],"$":[8,30,40,28,10,60,8,0],"%":[48,50,4,8,16,38,6,0],"&":[16,40,40,16,42,36,26,0],"'":[8,8,8,0,0,0,0,0],"(":[4,8,16,16,16,8,4,0],")":[16,8,4,4,4,8,16,0],"*":[0,8,42,28,42,8,0,0],"+":[0,8,8,62,8,8,0,0],",":[0,0,0,0,0,8,8,16],"-":[0,0,0,62,0,0,0,0],".":[0,0,0,0,0,0,8,0],"/":[2,4,4,8,16,16,32,0],"0":[28,34,38,42,50,34,28,0],"1":[8,24,8,8,8,8,28,0],"2":[28,34,2,4,8,16,62,0],"3":[62,4,8,4,2,34,28,0],"4":[4,12,20,36,62,4,4,0],"5":[62,32,60,2,2,34,28,0],"6":[12,16,32,60,34,34,28,0],"7":[62,2,4,8,16,16,16,0],"8":[28,34,34,28,34,34,28,0],"9":[28,34,34,30,2,4,24,0],":":[0,0,8,0,8,0,0,0],";":[0,0,8,0,8,8,16,0],"<":[4,8,16,32,16,8,4,0],"=":[0,0,62,0,62,0,0,0],">":[16,8,4,2,4,8,16,0],"?":[28,34,2,4,8,0,8,0],"@":[28,34,2,26,42,42,28,0],"A":[8,20,34,34,62,34,34,0],"B":[60,34,34,60,34,34,60,0],"C":[28,34,32,32,32,34,28,0],"D":[56,36,34,34,34,36,56,0],"E":[62,32,32,60,32,32,62,0],"F":[62,32,32,60,32,32,32,0],"G":[28,34,32,46,34,34,28,0],"H":[34,34,34,62,34,34,34,0],"I":[28,8,8,8,8,8,28,0],"J":[2,2,2,2,2,34,28,0],"K":[34,36,40,48,40,36,34,0],"L":[32,32,32,32,32,32,62,0],"M":[34,54,42,42,34,34,34,0],"N":[34,50,42,38,34,34,34,0],"O":[28,34,34,34,34,34,28,0],"P":[60,34,34,60,32,32,32,0],"Q":[28,34,34,34,42,36,26,0],"R":[60,34,34,60,40,36,34,0],"S":[28,34,32,28,2,34,28,0],"T":[62,8,8,8,8,8,8,0],"U":[34,34,34,34,34,34,28,0],"V":[34,34,34,34,34,20,8,0],"W":[34,34,34,42,42,54,34,0],"X":[34,34,20,8,20,34,34,0],"Y":[34,34,20,8,8,8,8,0],"Z":[62,2,4,8,16,32,62,0],"[":[28,16,16,16,16,16,28,0],"\\":[32,16,16,8,4,4,2,0],"]":[28,4,4,4,4,4,28,0],"^":[8,20,34,0,0,0,0,0],"_":[0,0,0,0,0,0,62,0]," ":[0,0,0,0,0,0,0,0]};
+'abcdefghijklmnopqrstuvwxyz'.split('').forEach(c=>FONT[c]=FONT[c.toUpperCase()]);
+
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const CW=560,CH=384;
+canvas.width=CW;canvas.height=CH;
+const COLS=40,ROWS=24;
+const CX=CW/COLS,CY=CH/ROWS,PX=2;
+const AMBER='#ffaa00',AMBER_DIM='#996600',AMBER_BRT='#ffd060',BG='#000';
+
+const buf=[];
+for(let r=0;r<ROWS;r++){buf[r]=[];for(let c=0;c<COLS;c++)buf[r][c]={ch:' ',mode:0};}
+
+function setCell(r,c,ch,mode=0){if(r<0||r>=ROWS||c<0||c>=COLS)return;buf[r][c]={ch:ch||' ',mode};}
+function clearBuf(){for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)buf[r][c]={ch:' ',mode:0};}
+
+let cursorOn=true,cursorR=0,cursorC=0,showCursor=false;
+
+function drawChar(r,c,ch,mode){
+  const x=c*CX,y=r*CY;
+  const bits=FONT[ch]||FONT[' '];
+  let fg,bg;
+  if(mode===3){fg=BG;bg=AMBER;}
+  else{bg=BG;fg=mode===1?AMBER_BRT:mode===2?AMBER_DIM:AMBER;}
+  ctx.fillStyle=bg;ctx.fillRect(x,y,CX,CY);
+  ctx.fillStyle=fg;
+  for(let row=0;row<8;row++){
+    const byte=bits[row];
+    for(let bit=6;bit>=0;bit--){
+      if(byte&(1<<bit)){
+        ctx.fillRect(x+(6-bit)*PX, y+row*PX, PX, PX);
+      }
+    }
+  }
+}
+
+function renderFrame(){
+  ctx.fillStyle=BG;ctx.fillRect(0,0,CW,CH);
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      const{ch,mode}=buf[r][c];
+      const isCur=showCursor&&cursorOn&&r===cursorR&&c===cursorC;
+      drawChar(r,c,ch,isCur?3:mode);
+    }
+  }
+}
+
+setInterval(()=>{cursorOn=!cursorOn;if(showCursor)renderFrame();},530);
+
+function writeStr(r,c,str,mode=0){
+  const up=str.toUpperCase();
+  for(let i=0;i<up.length;i++){if(c+i>=COLS)break;setCell(r,c+i,up[i],mode);}
+}
+
+function wait(ms){return new Promise(res=>setTimeout(res,ms));}
+
+async function typeStr(r,c,str,delay=28,mode=0){
+  const up=str.toUpperCase();
+  for(let i=0;i<up.length;i++){
+    if(c+i>=COLS)break;
+    setCell(r,c+i,up[i],mode);renderFrame();
+    await wait(delay+(Math.random()*delay*0.3|0));
+  }
+}
+
+const links=[];
+function clearLinks(){links.length=0;canvas.style.cursor='default';}
+function addLink(r,cs,len,fn){links.push({r,cs,ce:cs+len-1,fn});}
+
+function hitLink(e){
+  const rect=canvas.getBoundingClientRect();
+  const col=Math.floor((e.clientX-rect.left)*(CW/rect.width)/CX);
+  const row=Math.floor((e.clientY-rect.top)*(CH/rect.height)/CY);
+  return links.find(l=>l.r===row&&col>=l.cs&&col<=l.ce);
+}
+
+canvas.addEventListener('mousemove',e=>{canvas.style.cursor=hitLink(e)?'pointer':'default';});
+canvas.addEventListener('click',e=>{const h=hitLink(e);if(h)h.fn();});
+
+const GARBAGE='@#$%^!?><|[]{}~ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+function rnd(s){return s[Math.random()*s.length|0];}
+
+async function boot(){
+  // flash
+  ctx.fillStyle='#ffe090';ctx.fillRect(0,0,CW,CH);await wait(30);
+  ctx.fillStyle='#704000';ctx.fillRect(0,0,CW,CH);await wait(20);
+  ctx.fillStyle=BG;ctx.fillRect(0,0,CW,CH);await wait(80);
+  // garbage
+  for(let p=0;p<4;p++){
+    for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)
+      if(Math.random()<.6)setCell(r,c,rnd(GARBAGE),Math.random()<.12?1:0);
+    renderFrame();await wait(60);
+  }
+  // wipe
+  for(let r=0;r<ROWS;r++){for(let c=0;c<COLS;c++)setCell(r,c,' ');renderFrame();await wait(12);}
+  await wait(200);
+  // copyright
+  await typeStr(0,0,'Apple II',12,2);
+  writeStr(1,0,'Copyright Apple Computer 1979,1980,1981',2);
+  renderFrame();await wait(800);
+  clearBuf();renderFrame();await wait(150);
+  showCatalog(true);
+}
+
+const RULE='========================================';
+
+async function showCatalog(first=false){
+  clearLinks();clearBuf();showCursor=false;
+  writeStr(0,0,'] CATALOG',2);
+  writeStr(2,0,'ALBION HOUSE',1);
+  writeStr(3,0,'EST. 1993',2);
+  writeStr(5,0,"TWO COUSINS. ONE APPLE IIE.");
+  writeStr(6,0,'ALBION, NEBRASKA.');
+  writeStr(7,0,"WE'VE BEEN MAKING GAMES TOGETHER");
+  writeStr(8,0,'EVER SINCE.');
+  writeStr(10,0,RULE,2);
+  if(first){
+    renderFrame();await wait(300);
+    await typeStr(12,0,'KILLBOX.BAS       [ALPHA]',24,1);
+    await wait(60);await typeStr(14,0,'ABOUT.TXT',24,1);
+    await wait(60);await typeStr(16,0,'CONTACT.TXT',24,1);
+  } else {
+    writeStr(12,0,'KILLBOX.BAS       [ALPHA]',1);
+    writeStr(14,0,'ABOUT.TXT',1);
+    writeStr(16,0,'CONTACT.TXT',1);
+  }
+  writeStr(18,0,RULE,2);
+  writeStr(20,0,'READY.',2);
+  addLink(12,0,24,showKillbox);
+  addLink(14,0,9,showAbout);
+  addLink(16,0,11,showContact);
+  cursorR=22;cursorC=0;cursorOn=true;showCursor=true;
+  renderFrame();
+}
+
+function showAbout(){
+  clearLinks();clearBuf();showCursor=false;
+  writeStr(0,0,'] LOAD "ABOUT.TXT"',2);
+  writeStr(2,0,'ABOUT ALBION HOUSE',1);
+  writeStr(4,0,'ALBION HOUSE IS MATADORIAN GRAY');
+  writeStr(5,0,'AND CODEKILN.');
+  writeStr(7,0,"WE GREW UP IN DIFFERENT CITIES AND");
+  writeStr(8,0,"SPENT OUR SUMMERS AT OUR GRANDPARENTS'");
+  writeStr(9,0,"PLACE IN ALBION, NEBRASKA. THERE WAS");
+  writeStr(10,0,"AN APPLE IIE IN THE BASEMENT. WE");
+  writeStr(11,0,"TAUGHT OURSELVES TO PROGRAM ON IT.");
+  writeStr(13,0,"ONE OF US WENT INTO ART.");
+  writeStr(14,0,"ONE INTO CODE.");
+  writeStr(16,0,"WE'VE ALWAYS BELIEVED GAMES CAN");
+  writeStr(17,0,"HOLD SOMETHING REAL -- MYSTERY,");
+  writeStr(18,0,"HOPE, WONDER. WE'RE MAKING THE");
+  writeStr(19,0,"GAMES WE'VE ALWAYS WANTED TO PLAY.");
+  writeStr(21,0,RULE,2);
+  writeStr(22,0,'[CATALOG]',1);writeStr(22,12,'[KILLBOX]',1);writeStr(22,24,'[CONTACT]',1);
+  addLink(22,0,9,()=>showCatalog(false));addLink(22,12,9,showKillbox);addLink(22,24,9,showContact);
+  cursorR=23;cursorC=0;cursorOn=true;showCursor=true;
+  renderFrame();
+}
+
+function showKillbox(){
+  clearLinks();clearBuf();showCursor=false;
+  writeStr(0,0,'] LOAD "KILLBOX.BAS"',2);
+  writeStr(2,0,'KILLBOX.BAS       [ALPHA]',1);
+  writeStr(4,0,'KILLBOX IS AN ARCADE SURVIVAL GAME.');
+  writeStr(5,0,'HOW LONG CAN YOU LAST?');
+  writeStr(7,0,'IN ACTIVE DEVELOPMENT.',2);
+  writeStr(9,0,RULE,2);
+  writeStr(11,0,'> PLAY NOW',1);
+  writeStr(21,0,RULE,2);
+  writeStr(22,0,'[CATALOG]',1);writeStr(22,12,'[ABOUT]  ',1);writeStr(22,24,'[CONTACT]',1);
+  addLink(11,0,10,()=>window.open('https://joellueders.github.io/Killbox/killbox.html','_blank'));
+  addLink(22,0,9,()=>showCatalog(false));addLink(22,12,9,showAbout);addLink(22,24,9,showContact);
+  cursorR=23;cursorC=0;cursorOn=true;showCursor=true;
+  renderFrame();
+}
+
+function showContact(){
+  clearLinks();clearBuf();showCursor=false;
+  writeStr(0,0,'] LOAD "CONTACT.TXT"',2);
+  writeStr(2,0,'GET IN TOUCH',1);
+  writeStr(4,0,'HAVE A QUESTION?');
+  writeStr(5,0,'WANT TO COLLABORATE?');
+  writeStr(7,0,'HELLO@ALBIONHOUSE.GAMES',1);
+  writeStr(21,0,RULE,2);
+  writeStr(22,0,'[CATALOG]',1);writeStr(22,12,'[KILLBOX]',1);writeStr(22,24,'[ABOUT]  ',1);
+  addLink(7,0,23,()=>window.location.href='mailto:hello@albionhouse.games');
+  addLink(22,0,9,()=>showCatalog(false));addLink(22,12,9,showKillbox);addLink(22,24,9,showAbout);
+  cursorR=23;cursorC=0;cursorOn=true;showCursor=true;
+  renderFrame();
+}
+
+document.getElementById('sw').style.boxShadow='inset 0 0 50px rgba(0,0,0,.65),0 0 20px rgba(160,80,0,.2)';
+boot();
+</script>
+</body>
+</html>
