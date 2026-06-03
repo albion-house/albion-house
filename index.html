@@ -92,6 +92,11 @@ body::after {
     0 0 8px rgba(255,179,44,.55),
     0 0 22px rgba(255,179,44,.22);
   filter: blur(.12px);
+  transition: filter 150ms ease-out;
+}
+
+.app.is-transitioning {
+  filter: blur(1.2px);
 }
 
 .apple-frame {
@@ -298,6 +303,10 @@ a:focus {
   .cursor {
     animation: none;
   }
+
+  .app {
+    transition: none;
+  }
 }
 
 @media (min-width: 720px) {
@@ -453,6 +462,7 @@ const contactView = document.getElementById("contactView");
 const runView = document.getElementById("runView");
 const input = document.getElementById("commandInput");
 const message = document.getElementById("message");
+const app = document.querySelector(".app");
 
 const KILLBOX_URL = "https://joellueders.github.io/Killbox/";
 
@@ -463,9 +473,13 @@ function scrollTopNow() {
 }
 
 function show(view) {
+  app.classList.add("is-transitioning");
   views.forEach((item) => item.classList.add("hidden"));
   view.classList.remove("hidden");
   scrollTopNow();
+  setTimeout(() => {
+    app.classList.remove("is-transitioning");
+  }, 150);
 }
 
 function returnHome() {
