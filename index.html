@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<title>Albion House</title>
+
+<link href="https://fonts.cdnfonts.com/css/apple-ii-pro" rel="stylesheet">
+
+<style>
+:root {
+  --amber: #ffb32c;
+  --amber-bright: #ffd67f;
+  --bg: #020201;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+}
+
+body {
+  color: var(--amber);
+  font-family: 'Apple II Pro', 'Courier New', monospace;
+  text-transform: uppercase;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 34% 38%, rgba(255, 179, 44, 0.055), transparent 42%),
+    #020201;
+}
+
+.screen {
+  position: relative;
+  min-height: 100vh;
+  padding: clamp(36px, 7vw, 82px);
+  animation: crtBoot 420ms ease-out both;
+}
+
+.screen.loaded {
+  animation: none;
+}
+
+.screen::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,179,44,.05) 0px,
+      rgba(255,179,44,.05) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+  opacity: .48;
+  mix-blend-mode: screen;
+}
+
+.screen::after {
+  content: "";
+  position: fixed;
+  inset: -12%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 38% 43%, transparent 40%, rgba(0,0,0,.72) 80%);
+}
+
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 980px;
+  font-size: clamp(18px, 2.25vw, 34px);
+  line-height: 1.42;
+  letter-spacing: .02em;
+  text-shadow:
+    0 0 3px rgba(255,179,44,.95),
+    0 0 12px rgba(255,179,44,.3),
+    0 0 24px rgba(255,179,44,.12);
+  filter: blur(.12px);
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+  animation: textAppear 520ms ease-out both;
+}
+
+main.loaded {
+  animation: none;
+}
+
+.line {
+  min-height: 1.42em;
+  white-space: pre-wrap;
+}
+
+.spacer {
+  height: 1.1em;
+}
+
+.title {
+  color: var(--amber-bright);
+  font-size: 1.12em;
+  text-shadow:
+    0 0 3px rgba(255,214,127,.95),
+    0 0 14px rgba(255,214,127,.34);
+}
+
+.rule {
+  color: var(--amber-bright);
+  margin: .95em 0;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+button {
+  background: none;
+  border: none;
+  color: var(--amber);
+  text-decoration: none;
+  display: block;
+  width: fit-content;
+  font-family: inherit;
+  font-size: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  font-smooth: never;
+  -webkit-font-smoothing: none;
+  text-shadow:
+    0 0 3px rgba(255,179,44,.95),
+    0 0 12px rgba(255,179,44,.3),
+    0 0 24px rgba(255,179,44,.12);
+}
+
+button:hover,
+button:focus {
+  color: #020201;
+  background: var(--amber);
+  outline: none;
+  text-shadow: none;
+  box-shadow: none;
+}
+
+a {
+  color: var(--amber);
+  text-decoration: none;
+  display: block;
+  width: fit-content;
+}
+
+a:hover,
+a:focus {
+  color: var(--amber-bright);
+  outline: none;
+  text-shadow:
+    0 0 4px rgba(255,214,127,.95),
+    0 0 16px rgba(255,214,127,.34);
+}
+
+.cursor {
+  display: inline-block;
+  width: .68em;
+  height: .9em;
+  margin-left: .16em;
+  background: var(--amber);
+  vertical-align: -.08em;
+  box-shadow:
+    0 0 5px rgba(255,179,44,.95),
+    0 0 18px rgba(255,179,44,.35);
+  animation: blink 1s steps(2,start) infinite;
+}
+
+@keyframes blink {
+  0%,48% { opacity: 1; }
+  49%,100% { opacity: 0; }
+}
+
+@keyframes crtBoot {
+  0% {
+    opacity: 0;
+    filter: brightness(3.2) blur(3px);
+  }
+
+  18% {
+    opacity: 1;
+    filter: brightness(4.2) blur(2px);
+  }
+
+  42% {
+    filter: brightness(1.8) blur(.7px);
+  }
+
+  100% {
+    opacity: 1;
+    filter: brightness(1) blur(0);
+  }
+}
+
+@keyframes textAppear {
+  0%, 40% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen,
+  main,
+  .cursor {
+    animation: none;
+  }
+}
+
+@media (max-width: 720px) {
+  body {
+    overflow: auto;
+  }
+
+  .screen {
+    padding: 30px 20px 60px;
+  }
+
+  main {
+    font-size: clamp(15px, 4.2vw, 21px);
+    line-height: 1.35;
+  }
+
+  .line {
+    min-height: 1.35em;
+  }
+
+  .title {
+    font-size: 1em;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="screen" id="screen">
+  <main aria-label="Albion House Apple II style catalog" id="main">
+    <div class="line">] CATALOG</div>
+
+    <section id="content">
+      <div class="spacer"></div>
+
+      <div class="line title">ALBION HOUSE</div>
+      <div class="line">EST. 1993 ON A COMPUTER FROM 1983</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">TWO COUSINS SPENT SUMMERS MAKING GAMES IN A BASEMENT IN ALBION, NEBRASKA.</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">WE'RE STILL MAKING THEM.</div>
+
+      <div class="rule">----------------------------------------</div>
+
+      <button data-file="killbox">KILLBOX.BAS [ALPHA]</button>
+      <button data-file="about">ABOUT.TXT</button>
+      <button data-file="contact">CONTACT.TXT</button>
+      <div class="spacer"></div>
+
+      <div class="line">READY.</div>
+      <div class="line">]<span class="cursor"></span></div>
+    </section>
+  </main>
+</div>
+
+<script>
+// File content data
+const files = {
+  catalog: {
+    title: 'CATALOG',
+    loadCommand: 'CATALOG',
+    content: `
+      <div class="spacer"></div>
+
+      <div class="line title">ALBION HOUSE</div>
+      <div class="line">EST. 1993 ON A COMPUTER FROM 1983</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">TWO COUSINS SPENT SUMMERS MAKING GAMES IN A BASEMENT IN ALBION, NEBRASKA.</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">WE'RE STILL MAKING THEM.</div>
+
+      <div class="rule">----------------------------------------</div>
+
+      <button data-file="killbox">KILLBOX.BAS [ALPHA]</button>
+      <button data-file="about">ABOUT.TXT</button>
+      <button data-file="contact">CONTACT.TXT</button>
+      <div class="spacer"></div>
+
+      <div class="line">READY.</div>
+      <div class="line">]<span class="cursor"></span></div>
+    `
+  },
+  about: {
+    title: 'ABOUT',
+    loadCommand: 'LOAD "ABOUT.TXT"',
+    content: `
+      <div class="spacer"></div>
+
+      <div class="line title">ABOUT ALBION HOUSE</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">ALBION HOUSE IS AN INDEPENDENT GAME STUDIO FOUNDED BY TWO COUSINS.</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">GROWING UP, WE LIVED IN DIFFERENT CITIES BUT SPENT OUR SUMMERS TOGETHER AT OUR GRANDPARENTS' HOUSE IN ALBION, NEBRASKA. IT WAS A HUGE OLD HOUSE FILLED WITH WINDING HALLWAYS, HIDDEN ROOMS, AND ENOUGH MYSTERIES TO KEEP TWO KIDS EXPLORING ALL SUMMER LONG.</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">WE PLAYED VIDEO GAMES TOGETHER IN THE BASEMENT, WHERE WE DISCOVERED AN OLD APPLE IIE AND LEARNED TO MAKE OUR OWN. THOSE LONG SUMMER AFTERNOONS DISAPPEARED INTO IMAGINING IMPOSSIBLE WONDERS, INVENTIONS, AND ASKING EACH OTHER, "WHAT IF?"</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">ONE COUSIN PURSUED ART. THE OTHER PURSUED COMPUTER SCIENCE.</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">YEARS LATER, WE TEAMED UP AGAIN TO MAKE GAMES TOGETHER.</div>
+
+      <div class="rule">----------------------------------------</div>
+
+      <button data-file="catalog">CATALOG</button>
+      <button data-file="killbox">KILLBOX.BAS [ALPHA]</button>
+      <button data-file="contact">CONTACT.TXT</button>
+      <div class="spacer"></div>
+
+      <div class="line">READY.</div>
+      <div class="line">]<span class="cursor"></span></div>
+    `
+  },
+  killbox: {
+    title: 'KILLBOX',
+    loadCommand: 'LOAD "KILLBOX.BAS"',
+    content: `
+      <div class="spacer"></div>
+
+      <div class="line title">KILLBOX.BAS</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">A FAST-PACED ARCADE GAME OF REFLEXES AND STRATEGY.</div>
+
+      <div class="spacer"></div>
+
+      <div class="rule">----------------------------------------</div>
+
+      <a href="https://joellueders.github.io/Killbox/killbox.html" target="_blank">PLAY NOW</a>
+      <button data-file="catalog">CATALOG</button>
+      <button data-file="about">ABOUT.TXT</button>
+      <button data-file="contact">CONTACT.TXT</button>
+      <div class="spacer"></div>
+
+      <div class="line">READY.</div>
+      <div class="line">]<span class="cursor"></span></div>
+    `
+  },
+  contact: {
+    title: 'CONTACT',
+    loadCommand: 'LOAD "CONTACT.TXT"',
+    content: `
+      <div class="spacer"></div>
+
+      <div class="line title">GET IN TOUCH</div>
+
+      <div class="spacer"></div>
+
+      <div class="line">HAVE A QUESTION? WANT TO COLLABORATE?</div>
+
+      <div class="spacer"></div>
+
+      <a href="mailto:hello@albionhouse.games">HELLO@ALBIONHOUSE.GAMES</a>
+
+      <div class="spacer"></div>
+
+      <div class="rule">----------------------------------------</div>
+
+      <button data-file="catalog">CATALOG</button>
+      <button data-file="about">ABOUT.TXT</button>
+      <button data-file="killbox">KILLBOX.BAS [ALPHA]</button>
+      <div class="spacer"></div>
+
+      <div class="line">READY.</div>
+      <div class="line">]<span class="cursor"></span></div>
+    `
+  }
+};
+
+const screen = document.getElementById('screen');
+const main = document.getElementById('main');
+const contentSection = document.getElementById('content');
+let isInitialLoad = true;
+
+function loadFile(fileName) {
+  const file = files[fileName];
+  if (!file) return;
+
+  // Update content
+  contentSection.innerHTML = `<div class="line">] ${file.loadCommand}</div>${file.content}`;
+
+  // Mark as loaded to remove boot animation
+  if (isInitialLoad) {
+    screen.classList.add('loaded');
+    main.classList.add('loaded');
+    isInitialLoad = false;
+  }
+
+  // Attach event listeners to new buttons
+  attachButtonListeners();
+
+  // Scroll to top
+  window.scrollTo(0, 0);
+}
+
+function attachButtonListeners() {
+  const buttons = contentSection.querySelectorAll('button[data-file]');
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      loadFile(button.dataset.file);
+    });
+  });
+}
+
+// Initialize button listeners on page load
+attachButtonListeners();
+</script>
+</body>
+</html>

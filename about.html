@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>About Albion House</title>
+
+<link href="https://fonts.cdnfonts.com/css/apple-ii-pro" rel="stylesheet">
+
+<style>
+:root {
+  --amber: #ffb32c;
+  --amber-bright: #ffd67f;
+  --bg: #020201;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+}
+
+body {
+  color: var(--amber);
+  font-family: 'Apple II Pro', 'Courier New', monospace;
+  text-transform: uppercase;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 34% 38%, rgba(255, 179, 44, 0.055), transparent 42%),
+    #020201;
+}
+
+.screen {
+  position: relative;
+  min-height: 100vh;
+  padding: clamp(36px, 7vw, 82px);
+}
+
+.screen::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,179,44,.05) 0px,
+      rgba(255,179,44,.05) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+  opacity: .48;
+  mix-blend-mode: screen;
+}
+
+.screen::after {
+  content: "";
+  position: fixed;
+  inset: -12%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 38% 43%, transparent 40%, rgba(0,0,0,.72) 80%);
+}
+
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 1040px;
+  font-size: clamp(17px, 2.05vw, 31px);
+  line-height: 1.42;
+  letter-spacing: .02em;
+  text-shadow:
+    0 0 3px rgba(255,179,44,.95),
+    0 0 12px rgba(255,179,44,.3),
+    0 0 24px rgba(255,179,44,.12);
+  filter: blur(.12px);
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+.line {
+  min-height: 1.42em;
+  white-space: pre-wrap;
+}
+
+.spacer {
+  height: 1.1em;
+}
+
+.title {
+  color: var(--amber-bright);
+  font-size: 1.12em;
+  text-shadow:
+    0 0 3px rgba(255,214,127,.95),
+    0 0 14px rgba(255,214,127,.34);
+}
+
+.rule {
+  color: var(--amber-bright);
+  margin: .95em 0;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+a {
+  color: var(--amber);
+  text-decoration: none;
+  display: block;
+  width: fit-content;
+}
+
+a:hover,
+a:focus {
+  color: var(--amber-bright);
+  outline: none;
+  text-shadow:
+    0 0 4px rgba(255,214,127,.95),
+    0 0 16px rgba(255,214,127,.34);
+}
+
+.cursor {
+  display: inline-block;
+  width: .68em;
+  height: .9em;
+  margin-left: .16em;
+  background: var(--amber);
+  vertical-align: -.08em;
+  box-shadow:
+    0 0 5px rgba(255,179,44,.95),
+    0 0 18px rgba(255,179,44,.35);
+  animation: blink 1s steps(2,start) infinite;
+}
+
+@keyframes blink {
+  0%,48% { opacity: 1; }
+  49%,100% { opacity: 0; }
+}
+
+@media (max-width: 720px) {
+  body {
+    overflow: auto;
+  }
+
+  .screen {
+    padding: 30px 20px 60px;
+  }
+
+  main {
+    font-size: clamp(14px, 4vw, 20px);
+    line-height: 1.35;
+  }
+
+  .line {
+    min-height: 1.35em;
+  }
+
+  .title {
+    font-size: 1em;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="screen">
+  <main aria-label="About Albion House Apple II style page">
+    <div class="line">] LOAD ABOUT.TXT</div>
+
+    <div class="spacer"></div>
+
+    <div class="line title">ABOUT ALBION HOUSE</div>
+
+    <div class="spacer"></div>
+
+    <div class="line">ALBION HOUSE IS AN INDEPENDENT GAME STUDIO FOUNDED BY TWO COUSINS.</div>
+
+    <div class="spacer"></div>
+
+    <div class="line">GROWING UP, WE LIVED IN DIFFERENT CITIES BUT SPENT OUR SUMMERS TOGETHER AT OUR GRANDPARENTS' HOUSE IN ALBION, NEBRASKA. IT WAS A BEAUTIFUL OLD PLACE FILLED WITH WINDING HALLWAYS, HIDDEN ROOMS, AND ENOUGH MYSTERIES FOR TWO KIDS TO SPEND AN ENTIRE SUMMER EXPLORING.</div>
+
+    <div class="spacer"></div>
+
+    <div class="line">WE PLAYED VIDEO GAMES TOGETHER IN THE BASEMENT, LEARNED TO MAKE OUR OWN ON AN APPLE IIE, AND SPENT COUNTLESS HOURS EXPLORING, IMAGINING, AND ASKING, "WHAT IF?"</div>
+
+    <div class="spacer"></div>
+
+    <div class="line">EVENTUALLY, ONE COUSIN WENT TO ART SCHOOL. THE OTHER STUDIED COMPUTER SCIENCE.</div>
+
+    <div class="spacer"></div>
+
+    <div class="line">YEARS LATER, THOSE PATHS CAME BACK TOGETHER.</div>
+
+    <div class="spacer"></div>
+
+    <div class="line">ALBION HOUSE IS NAMED AFTER THE PLACE WHERE IT ALL STARTED.</div>
+
+    <div class="rule">----------------------------------------</div>
+
+    <a href="index.html">CATALOG</a>
+    <a href="killbox.html">KILLBOX.BAS</a>
+    <a href="mailto:hello@albionhouse.games">CONTACT.TXT</a>
+
+    <div class="spacer"></div>
+
+    <div class="line">READY.</div>
+    <div class="line">]<span class="cursor"></span></div>
+  </main>
+</div>
+</body>
+</html>
