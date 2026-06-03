@@ -8,7 +8,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;min-height:100vh;background:#111008;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .wrap{position:relative;width:min(98vw, calc(96vh * 0.88))}
-.bezel{width:100%;aspect-ratio:700/580;background:linear-gradient(155deg,#3d3020 0%,#1c1408 50%,#2c1e0a 100%);border-radius:14px 14px 20px 20px;padding:20px 22px 52px 22px;box-shadow:inset 0 1px 0 rgba(255,200,80,.07),0 8px 60px rgba(0,0,0,.95),0 2px 0 #0a0806;position:relative}
+.bezel{width:100%;aspect-ratio:700/580;background:linear-gradient(155deg,#3d3020 0%,#1c1408 50%,#2c1e0a 100%);border-radius:14px 14px 20px 20px;padding:20px 22px 52px 22px;box-shadow:inset 0 1px 0 rgb(255,255,255,.1),inset 0 0 20px rgb(0,0,0,.8)}
 .bezel-label{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);font-family:Helvetica,Arial,sans-serif;font-size:9px;letter-spacing:.22em;color:#4a3515;text-transform:uppercase;white-space:nowrap}
 .screen-wrap{width:100%;height:100%;background:#000;border-radius:4px;overflow:hidden;position:relative}
 canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;cursor:default}
@@ -30,7 +30,7 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rend
   </div>
 </div>
 <script>
-const FONT={"  ":[0,0,0,0,0,0,0,0],"!":[8,8,8,8,8,0,8,0],'"':[20,20,20,0,0,0,0,0],"#":[20,20,62,20,62,20,20,0],"$":[8,30,40,28,10,60,8,0],"%":[48,50,4,8,16,38,6,0],"&":[16,40,40,16,42,36,26,0],"'":[8,8,8,0,0,0,0,0],"(":[4,8,16,16,16,8,4,0],")":[16,8,4,4,4,8,16,0],"*":[0,8,42,28,42,8,0,0],"+":[0,8,8,62,8,8,0,0],",":[0,0,0,0,0,8,8,16],"-":[0,0,0,62,0,0,0,0],".":[0,0,0,0,0,0,8,0],"/":[2,4,4,8,16,16,32,0],"0":[28,34,38,42,50,34,28,0],"1":[8,24,8,8,8,8,28,0],"2":[28,34,2,4,8,16,62,0],"3":[62,4,8,4,2,34,28,0],"4":[4,12,20,36,62,4,4,0],"5":[62,32,60,2,2,34,28,0],"6":[12,16,32,60,34,34,28,0],"7":[62,2,4,8,16,16,16,0],"8":[28,34,34,28,34,34,28,0],"9":[28,34,34,30,2,4,24,0],":":[0,0,8,0,8,0,0,0],";":[0,0,8,0,8,8,16,0],"<":[4,8,16,32,16,8,4,0],"=":[0,0,62,0,62,0,0,0],">":[16,8,4,2,4,8,16,0],"?":[28,34,2,4,8,0,8,0],"@":[28,34,2,26,42,42,28,0],"A":[8,20,34,34,62,34,34,0],"B":[60,34,34,60,34,34,60,0],"C":[28,34,32,32,32,34,28,0],"D":[56,36,34,34,34,36,56,0],"E":[62,32,32,60,32,32,62,0],"F":[62,32,32,60,32,32,32,0],"G":[28,34,32,46,34,34,28,0],"H":[34,34,34,62,34,34,34,0],"I":[28,8,8,8,8,8,28,0],"J":[2,2,2,2,2,34,28,0],"K":[34,36,40,48,40,36,34,0],"L":[32,32,32,32,32,32,62,0],"M":[34,54,42,42,34,34,34,0],"N":[34,50,42,38,34,34,34,0],"O":[28,34,34,34,34,34,28,0],"P":[60,34,34,60,32,32,32,0],"Q":[28,34,34,34,42,36,26,0],"R":[60,34,34,60,40,36,34,0],"S":[28,34,32,28,2,34,28,0],"T":[62,8,8,8,8,8,8,0],"U":[34,34,34,34,34,34,28,0],"V":[34,34,34,34,34,20,8,0],"W":[34,34,34,42,42,54,34,0],"X":[34,34,20,8,20,34,34,0],"Y":[34,34,20,8,8,8,8,0],"Z":[62,2,4,8,16,32,62,0],"[":[28,16,16,16,16,16,28,0],"\\":[32,16,16,8,4,4,2,0],"]":[28,4,4,4,4,4,28,0],"^":[8,20,34,0,0,0,0,0],"_":[0,0,0,0,0,0,62,0]," ":[0,0,0,0,0,0,0,0]};
+const FONT={"  ":[0,0,0,0,0,0,0,0],"!":[8,8,8,8,8,0,8,0],'"':[20,20,20,0,0,0,0,0],"#":[20,20,62,20,62,20,20,0],"$":[8,30,40,28,10,60,8,0],"%":[48,50,4,8,16,38,6,0],"&":[16,40,40,16,42,36,26,0],"'":[8,16,16,0,0,0,0,0],"-":[0,0,0,28,0,0,0,0],".":[0,0,0,0,0,0,8,0],":":[0,8,0,0,0,8,0,0],"?":[28,34,4,8,8,0,8,0],"0":[28,34,34,34,34,34,28,0],"1":[8,24,8,8,8,8,28,0],"2":[28,34,2,4,8,16,62,0],"3":[28,34,2,12,2,34,28,0],"4":[4,12,20,36,62,4,4,0],"5":[62,32,60,2,2,34,28,0],"6":[12,16,32,60,34,34,28,0],"7":[62,2,4,8,16,32,32,0],"8":[28,34,34,28,34,34,28,0],"9":[28,34,34,30,2,4,24,0],"A":[28,34,34,62,34,34,34,0],"B":[60,34,34,60,34,34,60,0],"C":[28,34,32,32,32,34,28,0],"D":[60,34,34,34,34,34,60,0],"E":[62,32,32,60,32,32,62,0],"F":[62,32,32,60,32,32,32,0],"G":[28,34,32,38,34,34,28,0],"H":[34,34,34,62,34,34,34,0],"I":[28,8,8,8,8,8,28,0],"J":[14,4,4,4,4,36,24,0],"K":[34,36,40,48,40,36,34,0],"L":[32,32,32,32,32,32,62,0],"M":[34,51,45,34,34,34,34,0],"N":[34,50,42,38,34,34,34,0],"O":[28,34,34,34,34,34,28,0],"P":[60,34,34,60,32,32,32,0],"Q":[28,34,34,34,40,36,26,0],"R":[60,34,34,60,40,36,34,0],"S":[28,34,32,28,2,34,28,0],"T":[62,8,8,8,8,8,8,0],"U":[34,34,34,34,34,34,28,0],"V":[34,34,34,20,20,8,8,0],"W":[34,34,34,34,45,51,34,0],"X":[34,34,20,8,20,34,34,0],"Y":[34,34,20,8,8,8,8,0],"Z":[62,2,4,8,16,32,62,0]};
 'abcdefghijklmnopqrstuvwxyz'.split('').forEach(c=>FONT[c]=FONT[c.toUpperCase()]);
 
 const canvas=document.getElementById('c');
@@ -142,27 +142,29 @@ async function showCatalog(first=false){
   writeStr(0,0,'] CATALOG',2);
   writeStr(2,0,'ALBION HOUSE',1);
   writeStr(3,0,'EST. 1993',2);
-  writeStr(5,0,"TWO COUSINS. ONE APPLE IIE.");
-  writeStr(6,0,'ALBION, NEBRASKA.');
-  writeStr(7,0,"WE'VE BEEN MAKING GAMES TOGETHER");
-  writeStr(8,0,'EVER SINCE.');
-  writeStr(10,0,RULE,2);
+  writeStr(5,0,"ON A COMPUTER FROM 1983.");
+  writeStr(6,0,'');
+  writeStr(7,0,"A HUGE OLD HOUSE IN ALBION, NEBRASKA.");
+  writeStr(8,0,'TWO COUSINS. ONE QUESTION:');
+  writeStr(9,0,'');
+  writeStr(10,0,'WHAT IF?');
+  writeStr(12,0,RULE,2);
   if(first){
     renderFrame();await wait(300);
-    await typeStr(12,0,'KILLBOX.BAS       [ALPHA]',24,1);
-    await wait(60);await typeStr(14,0,'ABOUT.TXT',24,1);
-    await wait(60);await typeStr(16,0,'CONTACT.TXT',24,1);
+    await typeStr(14,0,'KILLBOX.BAS       [ALPHA]',24,1);
+    await wait(60);await typeStr(16,0,'ABOUT.TXT',24,1);
+    await wait(60);await typeStr(18,0,'CONTACT.TXT',24,1);
   } else {
-    writeStr(12,0,'KILLBOX.BAS       [ALPHA]',1);
-    writeStr(14,0,'ABOUT.TXT',1);
-    writeStr(16,0,'CONTACT.TXT',1);
+    writeStr(14,0,'KILLBOX.BAS       [ALPHA]',1);
+    writeStr(16,0,'ABOUT.TXT',1);
+    writeStr(18,0,'CONTACT.TXT',1);
   }
-  writeStr(18,0,RULE,2);
-  writeStr(20,0,'READY.',2);
-  addLink(12,0,24,showKillbox);
-  addLink(14,0,9,showAbout);
-  addLink(16,0,11,showContact);
-  cursorR=22;cursorC=0;cursorOn=true;showCursor=true;
+  writeStr(20,0,RULE,2);
+  writeStr(22,0,'READY.',2);
+  addLink(14,0,24,showKillbox);
+  addLink(16,0,9,showAbout);
+  addLink(18,0,11,showContact);
+  cursorR=23;cursorC=0;cursorOn=true;showCursor=true;
   renderFrame();
 }
 
