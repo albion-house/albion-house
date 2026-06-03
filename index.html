@@ -70,16 +70,21 @@ function wrapText(text,width){
 
 function buildAboutLines(){
   const lines=['] LOAD "ABOUT.TXT"','', 'ABOUT ALBION HOUSE',''];
-  lines.push(...wrapText('Albion House is an independent game studio founded by two cousins.', COLS));
-  lines.push('');
-  lines.push(...wrapText("Growing up, we lived in different cities but spent our summers together at our grandparents' house in Albion, Nebraska. It was a beautiful old place filled with winding hallways, hidden rooms, and enough mysteries for two fish out of water to spend an entire summer exploring.", COLS));
-  lines.push('');
-  lines.push(...wrapText('We played video games in the basement, learned to make our own on an Apple IIe, and spent countless hours imagining, and asking, "What if?"', COLS));
-  lines.push('');
-  lines.push(...wrapText('Eventually, one cousin went to art school. The other studied computer science. Years later, those paths came back together.', COLS));
-  lines.push('');
-  lines.push(...wrapText('Albion House is named after the place where it all started.', COLS));
-  lines.push('');
+  const paragraphs = [
+    'Albion House is an independent game studio founded by two cousins.',
+    "Growing up, we lived in different cities but spent our summers together at our grandparents' house in Albion, Nebraska. It was a beautiful old place filled with winding hallways, hidden rooms, and enough mysteries for two fish out of water to spend an entire summer exploring.",
+    'We played video games in the basement, learned to make our own on an Apple IIe, and spent countless hours imagining, and asking, "What if?"',
+    'Eventually, one cousin went to art school. The other studied computer science. Years later, those paths came back together.',
+    'Albion House is named after the place where it all started.',
+  ];
+  for (const paragraph of paragraphs) {
+    const wrapped = wrapText(paragraph, COLS);
+    for (const line of wrapped) {
+      lines.push(line);
+      lines.push('');
+    }
+    lines.push('');
+  }
   lines.push(RULE);
   lines.push('[CATALOG]   [KILLBOX]   [CONTACT]');
   return lines;
