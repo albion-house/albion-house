@@ -1,447 +1,343 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Albion House</title>
-
-<link href="https://fonts.cdnfonts.com/css/apple-ii-pro" rel="stylesheet">
-
+<link rel="icon" href="data:," />
+<link rel="apple-touch-icon" href="data:," />
 <style>
-:root {
-  --amber: #ffb32c;
-  --amber-bright: #ffd67f;
-  --bg: #020201;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  margin: 0;
-  min-height: 100%;
-  background: var(--bg);
-}
-
-body {
-  color: var(--amber);
-  font-family: 'Apple II Pro', 'Courier New', monospace;
-  text-transform: uppercase;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 34% 38%, rgba(255, 179, 44, 0.055), transparent 42%),
-    #020201;
-}
-
-.screen {
-  position: relative;
-  min-height: 100vh;
-  padding: clamp(36px, 7vw, 82px);
-  animation: crtBoot 420ms ease-out both;
-}
-
-.screen.loaded {
-  animation: none;
-}
-
-.screen::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background:
-    repeating-linear-gradient(
-      to bottom,
-      rgba(255,179,44,.05) 0px,
-      rgba(255,179,44,.05) 1px,
-      transparent 2px,
-      transparent 4px
-    );
-  opacity: .48;
-  mix-blend-mode: screen;
-}
-
-.screen::after {
-  content: "";
-  position: fixed;
-  inset: -12%;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 38% 43%, transparent 40%, rgba(0,0,0,.72) 80%);
-}
-
-main {
-  position: relative;
-  z-index: 1;
-  max-width: 980px;
-  font-size: clamp(18px, 2.25vw, 34px);
-  line-height: 1.42;
-  letter-spacing: .02em;
-  text-shadow:
-    0 0 3px rgba(255,179,44,.95),
-    0 0 12px rgba(255,179,44,.3),
-    0 0 24px rgba(255,179,44,.12);
-  filter: blur(.12px);
-  -webkit-font-smoothing: none;
-  font-smooth: never;
-  animation: textAppear 520ms ease-out both;
-}
-
-main.loaded {
-  animation: none;
-}
-
-.line {
-  min-height: 1.42em;
-  white-space: pre-wrap;
-}
-
-.spacer {
-  height: 1.1em;
-}
-
-.title {
-  color: var(--amber-bright);
-  font-size: 1.12em;
-  text-shadow:
-    0 0 3px rgba(255,214,127,.95),
-    0 0 14px rgba(255,214,127,.34);
-}
-
-.rule {
-  color: var(--amber-bright);
-  margin: .95em 0;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-button {
-  background: none;
-  border: none;
-  color: var(--amber);
-  text-decoration: none;
-  display: block;
-  width: fit-content;
-  font-family: inherit;
-  font-size: inherit;
-  text-transform: inherit;
-  cursor: pointer;
-  padding: 0;
-  margin: 0;
-  font-smooth: never;
-  -webkit-font-smoothing: none;
-  text-shadow:
-    0 0 3px rgba(255,179,44,.95),
-    0 0 12px rgba(255,179,44,.3),
-    0 0 24px rgba(255,179,44,.12);
-}
-
-button:hover,
-button:focus {
-  color: #020201;
-  background: var(--amber);
-  outline: none;
-  text-shadow: none;
-  box-shadow: none;
-}
-
-a {
-  color: var(--amber);
-  text-decoration: none;
-  display: block;
-  width: fit-content;
-}
-
-a:hover,
-a:focus {
-  color: var(--amber-bright);
-  outline: none;
-  text-shadow:
-    0 0 4px rgba(255,214,127,.95),
-    0 0 16px rgba(255,214,127,.34);
-}
-
-.cursor {
-  display: inline-block;
-  width: .68em;
-  height: .9em;
-  margin-left: .16em;
-  background: var(--amber);
-  vertical-align: -.08em;
-  box-shadow:
-    0 0 5px rgba(255,179,44,.95),
-    0 0 18px rgba(255,179,44,.35);
-  animation: blink 1s steps(2,start) infinite;
-}
-
-@keyframes blink {
-  0%,48% { opacity: 1; }
-  49%,100% { opacity: 0; }
-}
-
-@keyframes crtBoot {
-  0% {
-    opacity: 0;
-    filter: brightness(3.2) blur(3px);
-  }
-
-  18% {
-    opacity: 1;
-    filter: brightness(4.2) blur(2px);
-  }
-
-  42% {
-    filter: brightness(1.8) blur(.7px);
-  }
-
-  100% {
-    opacity: 1;
-    filter: brightness(1) blur(0);
-  }
-}
-
-@keyframes textAppear {
-  0%, 40% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .screen,
-  main,
-  .cursor {
-    animation: none;
-  }
-}
-
-@media (max-width: 720px) {
-  body {
-    overflow: auto;
-  }
-
-  .screen {
-    padding: 30px 20px 60px;
-  }
-
-  main {
-    font-size: clamp(15px, 4.2vw, 21px);
-    line-height: 1.35;
-  }
-
-  .line {
-    min-height: 1.35em;
-  }
-
-  .title {
-    font-size: 1em;
-  }
-}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;min-height:100vh;background:#111008;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.wrap{position:relative;width:min(98vw, calc(96vh * 0.88))}
+.screen-wrap{width:100%;aspect-ratio:700/580;background:#000;border-radius:4px;overflow:hidden;position:relative;box-shadow:0 0 24px rgba(0,0,0,.55)}
+canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;cursor:default}
+.scanlines{position:absolute;inset:0;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.18) 0px,rgba(0,0,0,.18) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:2}
+.glare{position:absolute;inset:0;background:radial-gradient(ellipse at 28% 18%, rgba(255,255,255,.028) 0%, transparent 52%);pointer-events:none;z-index:3;border-radius:4px}
+.led{position:absolute;bottom:5px;right:9px;width:5px;height:5px;border-radius:50%;background:#e05000;box-shadow:0 0 5px #c03000;z-index:10}
 </style>
 </head>
-
 <body>
-<div class="screen" id="screen">
-  <main aria-label="Albion House Apple II style catalog" id="main">
-    <div class="line">] CATALOG</div>
-
-    <section id="content">
-      <div class="spacer"></div>
-
-      <div class="line title">ALBION HOUSE</div>
-      <div class="line">EST. 1993 ON A COMPUTER FROM 1983</div>
-
-      <div class="spacer"></div>
-
-      <div class="line">TWO COUSINS SPENT SUMMERS MAKING GAMES IN A BASEMENT IN ALBION, NEBRASKA.</div>
-
-      <div class="spacer"></div>
-
-      <div class="line">WE'RE STILL MAKING THEM.</div>
-
-      <div class="rule">----------------------------------------</div>
-
-      <button data-file="killbox">KILLBOX.BAS [ALPHA]</button>
-      <button data-file="about">ABOUT.TXT</button>
-      <button data-file="contact">CONTACT.TXT</button>
-      <div class="spacer"></div>
-
-      <div class="line">READY.</div>
-      <div class="line">]<span class="cursor"></span></div>
-    </section>
-  </main>
+<div class="wrap">
+  <div class="screen-wrap" id="sw">
+    <canvas id="c" tabindex="0" aria-label="Albion House Apple IIe terminal"></canvas>
+    <div class="scanlines"></div>
+    <div class="glare"></div>
+    <div class="led"></div>
+  </div>
 </div>
-
 <script>
-// File content data
-const files = {
-  catalog: {
-    title: 'CATALOG',
-    loadCommand: 'CATALOG',
-    content: `
-      <div class="spacer"></div>
+const FONT={" ":[0,0,0,0,0,0,0,0],"!":[8,8,8,8,8,0,8,0],'"':[20,20,20,0,0,0,0,0],"#":[20,20,62,20,62,20,20,0],"$":[8,30,40,28,10,60,8,0],"%":[48,50,4,8,16,38,6,0],"&":[16,40,40,16,42,36,26,0],"'":[8,16,16,0,0,0,0,0],"(":[4,8,16,16,16,8,4,0],")":[16,8,4,4,4,8,16,0],"*":[0,20,8,62,8,20,0,0],"+":[0,8,8,62,8,8,0,0],",":[0,0,0,0,0,8,8,16],"-":[0,0,0,28,0,0,0,0],".":[0,0,0,0,0,0,8,0],"/":[2,4,8,16,32,0,0,0],"0":[28,34,34,34,34,34,28,0],"1":[8,24,8,8,8,8,28,0],"2":[28,34,2,4,8,16,62,0],"3":[28,34,2,12,2,34,28,0],"4":[4,12,20,36,62,4,4,0],"5":[62,32,60,2,2,34,28,0],"6":[12,16,32,60,34,34,28,0],"7":[62,2,4,8,16,32,32,0],"8":[28,34,34,28,34,34,28,0],"9":[28,34,34,30,2,4,24,0],":":[0,8,0,0,0,8,0,0],";":[0,8,0,0,0,8,8,16],"<":[2,4,8,16,8,4,2,0],"=":[0,0,62,0,62,0,0,0],">":[32,16,8,4,8,16,32,0],"?":[28,34,4,8,8,0,8,0],"@":[28,34,42,46,42,32,30,0],"A":[28,34,34,62,34,34,34,0],"B":[60,34,34,60,34,34,60,0],"C":[28,34,32,32,32,34,28,0],"D":[60,34,34,34,34,34,60,0],"E":[62,32,32,60,32,32,62,0],"F":[62,32,32,60,32,32,32,0],"G":[28,34,32,38,34,34,28,0],"H":[34,34,34,62,34,34,34,0],"I":[28,8,8,8,8,8,28,0],"J":[14,4,4,4,4,36,24,0],"K":[34,36,40,48,40,36,34,0],"L":[32,32,32,32,32,32,62,0],"M":[34,51,45,34,34,34,34,0],"N":[34,50,42,38,34,34,34,0],"O":[28,34,34,34,34,34,28,0],"P":[60,34,34,60,32,32,32,0],"Q":[28,34,34,34,40,36,26,0],"R":[60,34,34,60,40,36,34,0],"S":[28,34,32,28,2,34,28,0],"T":[62,8,8,8,8,8,8,0],"U":[34,34,34,34,34,34,28,0],"V":[34,34,34,20,20,8,8,0],"W":[34,34,34,34,45,51,34,0],"X":[34,34,20,8,20,34,34,0],"Y":[34,34,20,8,8,8,8,0],"Z":[62,2,4,8,16,32,62,0],"[":[12,8,8,8,8,8,12,0],"]":[24,8,8,8,8,8,24,0]};
+'abcdefghijklmnopqrstuvwxyz'.split('').forEach(c=>FONT[c]=FONT[c.toUpperCase()]);
 
-      <div class="line title">ALBION HOUSE</div>
-      <div class="line">EST. 1993 ON A COMPUTER FROM 1983</div>
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const CW=560,CH=384;
+canvas.width=CW;canvas.height=CH;
+const COLS=40,ROWS=24;
+const CX=CW/COLS,CY=CH/ROWS,PX=2;
+const AMBER='#ffaa00',AMBER_DIM='#996600',AMBER_BRT='#ffd060',BG='#000';
 
-      <div class="spacer"></div>
+const buf=[];
+for(let r=0;r<ROWS;r++){buf[r]=[];for(let c=0;c<COLS;c++)buf[r][c]={ch:' ',mode:0};}
 
-      <div class="line">TWO COUSINS SPENT SUMMERS MAKING GAMES IN A BASEMENT IN ALBION, NEBRASKA.</div>
+function setCell(r,c,ch,mode=0){if(r<0||r>=ROWS||c<0||c>=COLS)return;buf[r][c]={ch:ch||' ',mode};}
+function clearBuf(){for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)buf[r][c]={ch:' ',mode:0};}
+function clearRow(r){for(let c=0;c<COLS;c++)buf[r][c]={ch:' ',mode:0};}
 
-      <div class="spacer"></div>
+let cursorOn=true,cursorR=0,cursorC=0,showCursor=false,hoverLink=null,inputBuffer='',bootComplete=false;
 
-      <div class="line">WE'RE STILL MAKING THEM.</div>
-
-      <div class="rule">----------------------------------------</div>
-
-      <button data-file="killbox">KILLBOX.BAS [ALPHA]</button>
-      <button data-file="about">ABOUT.TXT</button>
-      <button data-file="contact">CONTACT.TXT</button>
-      <div class="spacer"></div>
-
-      <div class="line">READY.</div>
-      <div class="line">]<span class="cursor"></span></div>
-    `
-  },
-  about: {
-    title: 'ABOUT',
-    loadCommand: 'LOAD "ABOUT.TXT"',
-    content: `
-      <div class="spacer"></div>
-
-      <div class="line title">ABOUT ALBION HOUSE</div>
-
-      <div class="spacer"></div>
-
-      <div class="line">ALBION HOUSE IS AN INDEPENDENT GAME STUDIO FOUNDED BY TWO COUSINS.</div>
-
-      <div class="spacer"></div>
-
-      <div class="line">GROWING UP, WE LIVED IN DIFFERENT CITIES BUT SPENT OUR SUMMERS TOGETHER AT OUR GRANDPARENTS' HOUSE IN ALBION, NEBRASKA. IT WAS A HUGE OLD HOUSE FILLED WITH WINDING HALLWAYS, HIDDEN ROOMS, AND ENOUGH MYSTERIES TO KEEP TWO KIDS EXPLORING ALL SUMMER LONG.</div>
-
-      <div class="spacer"></div>
-
-      <div class="line">WE PLAYED VIDEO GAMES TOGETHER IN THE BASEMENT, WHERE WE DISCOVERED AN OLD APPLE IIE AND LEARNED TO MAKE OUR OWN. THOSE LONG SUMMER AFTERNOONS DISAPPEARED INTO IMAGINING IMPOSSIBLE WONDERS, INVENTIONS, AND ASKING EACH OTHER, "WHAT IF?"</div>
-
-      <div class="spacer"></div>
-
-      <div class="line">ONE COUSIN PURSUED ART. THE OTHER PURSUED COMPUTER SCIENCE.</div>
-
-      <div class="spacer"></div>
-
-      <div class="line">YEARS LATER, WE TEAMED UP AGAIN TO MAKE GAMES TOGETHER.</div>
-
-      <div class="rule">----------------------------------------</div>
-
-      <button data-file="catalog">CATALOG</button>
-      <button data-file="killbox">KILLBOX.BAS [ALPHA]</button>
-      <button data-file="contact">CONTACT.TXT</button>
-      <div class="spacer"></div>
-
-      <div class="line">READY.</div>
-      <div class="line">]<span class="cursor"></span></div>
-    `
-  },
-  killbox: {
-    title: 'KILLBOX',
-    loadCommand: 'LOAD "KILLBOX.BAS"',
-    content: `
-      <div class="spacer"></div>
-
-      <div class="line title">KILLBOX.BAS</div>
-
-      <div class="spacer"></div>
-
-      <div class="line">A FAST-PACED ARCADE GAME OF REFLEXES AND STRATEGY.</div>
-
-      <div class="spacer"></div>
-
-      <div class="rule">----------------------------------------</div>
-
-      <a href="https://joellueders.github.io/Killbox/killbox.html" target="_blank">PLAY NOW</a>
-      <button data-file="catalog">CATALOG</button>
-      <button data-file="about">ABOUT.TXT</button>
-      <button data-file="contact">CONTACT.TXT</button>
-      <div class="spacer"></div>
-
-      <div class="line">READY.</div>
-      <div class="line">]<span class="cursor"></span></div>
-    `
-  },
-  contact: {
-    title: 'CONTACT',
-    loadCommand: 'LOAD "CONTACT.TXT"',
-    content: `
-      <div class="spacer"></div>
-
-      <div class="line title">GET IN TOUCH</div>
-
-      <div class="spacer"></div>
-
-      <div class="line">HAVE A QUESTION? WANT TO COLLABORATE?</div>
-
-      <div class="spacer"></div>
-
-      <a href="mailto:hello@albionhouse.games">HELLO@ALBIONHOUSE.GAMES</a>
-
-      <div class="spacer"></div>
-
-      <div class="rule">----------------------------------------</div>
-
-      <button data-file="catalog">CATALOG</button>
-      <button data-file="about">ABOUT.TXT</button>
-      <button data-file="killbox">KILLBOX.BAS [ALPHA]</button>
-      <div class="spacer"></div>
-
-      <div class="line">READY.</div>
-      <div class="line">]<span class="cursor"></span></div>
-    `
+function drawChar(r,c,ch,mode){
+  const x=c*CX,y=r*CY;
+  const bits=FONT[ch]||FONT[' '];
+  let fg,bg;
+  if(mode===3){fg=BG;bg=AMBER;}
+  else{bg=BG;fg=mode===1?AMBER_BRT:mode===2?AMBER_DIM:AMBER;}
+  ctx.fillStyle=bg;ctx.fillRect(x,y,CX,CY);
+  ctx.fillStyle=fg;
+  for(let row=0;row<8;row++){
+    const byte=bits[row];
+    for(let bit=6;bit>=0;bit--){
+      if(byte&(1<<bit)){
+        ctx.fillRect(x+(6-bit)*PX, y+row*PX, PX, PX);
+      }
+    }
   }
-};
-
-const screen = document.getElementById('screen');
-const main = document.getElementById('main');
-const contentSection = document.getElementById('content');
-let isInitialLoad = true;
-
-function loadFile(fileName) {
-  const file = files[fileName];
-  if (!file) return;
-
-  // Update content
-  contentSection.innerHTML = `<div class="line">] ${file.loadCommand}</div>${file.content}`;
-
-  // Mark as loaded to remove boot animation
-  if (isInitialLoad) {
-    screen.classList.add('loaded');
-    main.classList.add('loaded');
-    isInitialLoad = false;
-  }
-
-  // Attach event listeners to new buttons
-  attachButtonListeners();
-
-  // Scroll to top
-  window.scrollTo(0, 0);
 }
 
-function attachButtonListeners() {
-  const buttons = contentSection.querySelectorAll('button[data-file]');
-  buttons.forEach(button => {
-    button.addEventListener('click', () => {
-      loadFile(button.dataset.file);
-    });
-  });
+function renderFrame(){
+  ctx.fillStyle=BG;ctx.fillRect(0,0,CW,CH);
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      const{ch,mode}=buf[r][c];
+      const isCur=showCursor&&cursorOn&&r===cursorR&&c===cursorC;
+      const isHover=hoverLink&&r===hoverLink.r&&c>=hoverLink.cs&&c<=hoverLink.ce;
+      drawChar(r,c,ch,isCur||isHover?3:mode);
+    }
+  }
 }
 
-// Initialize button listeners on page load
-attachButtonListeners();
+setInterval(()=>{cursorOn=!cursorOn;if(showCursor)renderFrame();},530);
+
+function writeStr(r,c,str,mode=0){
+  const up=str.toUpperCase();
+  for(let i=0;i<up.length;i++){if(c+i>=COLS)break;setCell(r,c+i,up[i],mode);}
+}
+
+function syncPrompt(){
+  clearRow(23);
+  writeStr(23,0,']',2);
+  setCell(23,1,' ',2);
+  writeStr(23,2,inputBuffer,1);
+  cursorR=23;
+  cursorC=Math.min(2+inputBuffer.length,COLS-1);
+  showCursor=true;
+}
+
+function centerText(r,str,mode=0){
+  writeStr(r,Math.max(0,Math.floor((COLS-str.length)/2)),str,mode);
+}
+
+function sleep(ms){
+  return new Promise(resolve=>setTimeout(resolve,ms));
+}
+
+const BOOT_CHARS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?-.:/[]<>=';
+
+function randomBootChar(){
+  return BOOT_CHARS[Math.floor(Math.random()*BOOT_CHARS.length)];
+}
+
+function renderBootNoise(density){
+  clearBuf();
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      const edgeBand=r<2||r>ROWS-3;
+      const chance=edgeBand?0.08:density;
+      if(Math.random()<chance){
+        setCell(r,c,randomBootChar(),Math.random()<0.15?1:2);
+      }
+    }
+  }
+  renderFrame();
+}
+
+const links=[];
+function clearLinks(){links.length=0;hoverLink=null;canvas.style.cursor='default';}
+function addLink(r,cs,len,fn){links.push({r,cs,ce:cs+len-1,fn});}
+
+function normalizeCommand(text){
+  return text.trim().toUpperCase().replace(/^\[|\]$/g,'').replace(/^>\s*/,'').replace(/\s+/g,' ');
+}
+
+function hitLink(e){
+  const rect=canvas.getBoundingClientRect();
+  const col=Math.floor((e.clientX-rect.left)*(CW/rect.width)/CX);
+  const row=Math.floor((e.clientY-rect.top)*(CH/rect.height)/CY);
+  return links.find(l=>l.r===row&&col>=l.cs&&col<=l.ce);
+}
+
+canvas.addEventListener('mousemove',e=>{
+  const link=hitLink(e);
+  canvas.style.cursor=link?'pointer':'default';
+  if(link!==hoverLink){
+    hoverLink=link;
+    renderFrame();
+  }
+});
+canvas.addEventListener('mouseleave',()=>{
+  if(hoverLink){
+    hoverLink=null;
+    canvas.style.cursor='default';
+    renderFrame();
+  }
+});
+canvas.addEventListener('click',e=>{canvas.focus();const h=hitLink(e);if(h)h.fn();});
+
+function runCommand(cmd){
+  const command=normalizeCommand(cmd);
+  inputBuffer='';
+  if(!command){
+    syncPrompt();
+    renderFrame();
+    return;
+  }
+  if(command==='CATALOG' || command==='HOME' || command==='[CATALOG]'){
+    showCatalog();
+    return;
+  }
+  if(command==='ABOUT' || command==='ABOUT.TXT' || command==='[ABOUT]'){
+    showAbout();
+    return;
+  }
+  if(command==='CONTACT' || command==='CONTACT.TXT' || command==='HELLO@ALBIONHOUSE.GAMES' || command==='[CONTACT]'){
+    showContact();
+    return;
+  }
+  if(command==='KILLBOX' || command==='KILLBOX.BAS' || command==='PLAY' || command==='PLAY NOW' || command==='RUN KILLBOX' || command==='RUN KILLBOX V0.1'){
+    showKillbox();
+    return;
+  }
+  syncPrompt();
+  renderFrame();
+}
+
+window.addEventListener('keydown',e=>{
+  if(!bootComplete) return;
+  if(e.metaKey||e.ctrlKey||e.altKey) return;
+  if(e.key==='Backspace'){
+    e.preventDefault();
+    inputBuffer=inputBuffer.slice(0,-1);
+    syncPrompt();
+    renderFrame();
+    return;
+  }
+  if(e.key==='Enter'){
+    e.preventDefault();
+    runCommand(inputBuffer);
+    return;
+  }
+  if(e.key==='Escape'){
+    e.preventDefault();
+    inputBuffer='';
+    syncPrompt();
+    renderFrame();
+    return;
+  }
+  if(e.key.length===1 && /^[\x20-\x7E]$/.test(e.key)){
+    e.preventDefault();
+    if(inputBuffer.length<COLS-4){
+      inputBuffer+=e.key.toUpperCase();
+      syncPrompt();
+      renderFrame();
+    }
+  }
+});
+
+function boot(){
+  bootSequence();
+}
+
+const RULE='========================================';
+
+async function bootSequence(){
+  clearLinks();
+  showCursor=false;
+  inputBuffer='';
+  clearBuf();
+  ctx.fillStyle='#ffe090';ctx.fillRect(0,0,CW,CH);
+  await sleep(35);
+  ctx.fillStyle='#704000';ctx.fillRect(0,0,CW,CH);
+  await sleep(35);
+  ctx.fillStyle=BG;ctx.fillRect(0,0,CW,CH);
+  renderBootNoise(0.18);
+  await sleep(90);
+  renderBootNoise(0.08);
+  await sleep(90);
+  clearBuf();
+  centerText(8,'APPLE ][e',1);
+  centerText(10,'COPYRIGHT APPLE COMPUTER',2);
+  centerText(11,'1977, 1979, 1980, 1982',2);
+  centerText(13,'BOOT SECTOR OK',1);
+  renderFrame();
+  await sleep(550);
+  clearBuf();
+  renderFrame();
+  await showCatalog(true);
+  bootComplete=true;
+}
+
+async function showCatalog(animated=false){
+  clearLinks();clearBuf();showCursor=false;inputBuffer='';
+  const steps=[
+    ()=>writeStr(0,0,'] CATALOG',2),
+    ()=>writeStr(2,0,'ALBION HOUSE',1),
+    ()=>writeStr(3,0,'EST. 1993',2),
+    ()=>writeStr(5,0,"A BIG MYSTERIOUS HOUSE IN ALBION,"),
+    ()=>writeStr(6,0,"NEBRASKA."),
+    ()=>writeStr(8,0,"TWO COUSINS."),
+    ()=>writeStr(9,0,"ONE QUESTION."),
+    ()=>writeStr(11,0,"WHAT IF?"),
+    ()=>writeStr(14,0,RULE,2),
+    ()=>writeStr(16,0,'RUN KILLBOX V0.1',1),
+    ()=>writeStr(18,0,'ABOUT.TXT',1),
+    ()=>writeStr(20,0,'CONTACT.TXT',1),
+    ()=>writeStr(22,0,'READY.',2),
+  ];
+  if(animated){
+    for(const step of steps){
+      step();
+      renderFrame();
+      await sleep(step === steps[0] ? 110 : 45);
+    }
+  }else{
+    for(const step of steps) step();
+    renderFrame();
+  }
+  addLink(16,0,16,showKillbox);
+  addLink(18,0,9,showAbout);
+  addLink(20,0,11,showContact);
+  syncPrompt();
+  renderFrame();
+}
+
+function showAbout(){
+  clearLinks();clearBuf();showCursor=false;inputBuffer='';
+  writeStr(0,0,'] LOAD "ABOUT.TXT"',2);
+  writeStr(2,0,'ABOUT ALBION HOUSE',1);
+  writeStr(4,0,'ALBION HOUSE IS MATADORIAN GRAY');
+  writeStr(5,0,'AND CODEKILN.');
+  writeStr(7,0,"WE GREW UP IN DIFFERENT CITIES.");
+  writeStr(8,0,"SUMMERS WERE IN ALBION, NEBRASKA.");
+  writeStr(9,0,"THERE WAS AN APPLE IIE IN THE BASEMENT.");
+  writeStr(10,0,"WE TAUGHT OURSELVES TO PROGRAM THERE.");
+  writeStr(12,0,"ONE OF US WENT INTO ART.");
+  writeStr(13,0,"ONE INTO CODE.");
+  writeStr(15,0,"WE MAKE GAMES THAT HOLD MYSTERY,");
+  writeStr(16,0,"HOPE, AND WONDER.");
+  writeStr(18,0,"WE'RE MAKING THE GAMES WE WANTED");
+  writeStr(19,0,"TO PLAY.");
+  writeStr(21,0,RULE,2);
+  writeStr(22,0,'[CATALOG]',1);writeStr(22,12,'[KILLBOX]',1);writeStr(22,24,'[CONTACT]',1);
+  addLink(22,0,9,showCatalog);addLink(22,12,9,showKillbox);addLink(22,24,9,showContact);
+  syncPrompt();
+  renderFrame();
+}
+
+function showKillbox(){
+  clearLinks();clearBuf();showCursor=false;inputBuffer='';
+  writeStr(0,0,'] LOAD "KILLBOX.BAS"',2);
+  writeStr(2,0,'KILLBOX.BAS       V0.1',1);
+  writeStr(4,0,'KILLBOX IS AN ARCADE SURVIVAL GAME.');
+  writeStr(5,0,'HOW LONG CAN YOU LAST?');
+  writeStr(7,0,'IN ACTIVE DEVELOPMENT.',2);
+  writeStr(9,0,RULE,2);
+  writeStr(11,0,'> PLAY NOW',1);
+  writeStr(21,0,RULE,2);
+  writeStr(22,0,'[CATALOG]',1);writeStr(22,12,'[ABOUT]  ',1);writeStr(22,24,'[CONTACT]',1);
+  addLink(11,0,10,()=>window.open('https://joellueders.github.io/Killbox/killbox.html','_blank'));
+  addLink(22,0,9,showCatalog);addLink(22,12,9,showAbout);addLink(22,24,9,showContact);
+  syncPrompt();
+  renderFrame();
+}
+
+function showContact(){
+  clearLinks();clearBuf();showCursor=false;inputBuffer='';
+  writeStr(0,0,'] LOAD "CONTACT.TXT"',2);
+  writeStr(2,0,'GET IN TOUCH',1);
+  writeStr(4,0,'HAVE A QUESTION?');
+  writeStr(5,0,'WANT TO COLLABORATE?');
+  writeStr(7,0,'HELLO@ALBIONHOUSE.GAMES',1);
+  writeStr(21,0,RULE,2);
+  writeStr(22,0,'[CATALOG]',1);writeStr(22,12,'[KILLBOX]',1);writeStr(22,24,'[ABOUT]  ',1);
+  addLink(7,0,23,()=>window.location.href='mailto:hello@albionhouse.games');
+  addLink(22,0,9,showCatalog);addLink(22,12,9,showKillbox);addLink(22,24,9,showAbout);
+  syncPrompt();
+  renderFrame();
+}
+
+document.getElementById('sw').style.boxShadow='inset 0 0 50px rgba(0,0,0,.65),0 0 20px rgba(160,80,0,.2)';
+boot();
 </script>
 </body>
 </html>
