@@ -1,451 +1,630 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Albion House</title>
-<link rel="icon" href="data:," />
-<link rel="apple-touch-icon" href="data:," />
+<link href="https://fonts.cdnfonts.com/css/apple-ii-pro" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;min-height:100%;background:#111008;overflow-x:hidden;overflow-y:auto}
-body{display:flex;align-items:center;justify-content:center;min-height:100dvh;padding:12px}
-.wrap{position:relative;width:min(98vw, calc(96dvh * 0.88));max-width:100%}
-.screen-wrap{width:100%;aspect-ratio:700/580;background:#000;border-radius:4px;overflow:hidden;position:relative;box-shadow:0 0 24px rgba(0,0,0,.55)}
-canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;cursor:default;touch-action:none}
-.scanlines{position:absolute;inset:0;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.18) 0px,rgba(0,0,0,.18) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:2}
-.glare{position:absolute;inset:0;background:radial-gradient(ellipse at 28% 18%, rgba(255,255,255,.028) 0%, transparent 52%);pointer-events:none;z-index:3;border-radius:4px}
-.led{position:absolute;bottom:5px;right:9px;width:5px;height:5px;border-radius:50%;background:#e05000;box-shadow:0 0 5px #c03000;z-index:10}
-@media (max-width: 700px){
-  body{align-items:flex-start;padding:10px 8px}
-  .wrap{width:min(100%, calc((100dvh - 20px) * 0.88))}
+:root {
+  --screen-bg: #001207;
+  --screen-edge: #000503;
+  --phosphor: #d8ffe4;
+  --phosphor-soft: #bfffd0;
+  --phosphor-dim: #7fca95;
+  --phosphor-shadow: rgba(190, 255, 210, .18);
+  --cell-font: clamp(12px, min(2.08vw, 2.78vh), 22px);
+}
+
+* { box-sizing: border-box; }
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+  background: #020503;
+}
+
+body {
+  color: var(--phosphor);
+  font-family: "Apple II Pro", "Courier New", Courier, monospace;
+  font-weight: 400;
+  text-transform: uppercase;
+  overflow-x: hidden;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+  text-rendering: geometricPrecision;
+}
+
+/* very light CRT raster, not modern neon scanlines */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(225,255,234,.035) 0,
+      rgba(225,255,234,.035) 1px,
+      rgba(0,0,0,.035) 2px,
+      transparent 4px
+    );
+  opacity: .28;
+  z-index: 20;
+}
+
+/* soft glass falloff */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 48%, transparent 0%, transparent 68%, rgba(0,0,0,.30) 100%);
+  z-index: 21;
+}
+
+.viewport {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(ellipse at 50% 45%, rgba(180,255,196,.045) 0%, rgba(0,18,7,.94) 54%, #000 100%);
+  padding: clamp(6px, 1.5vw, 18px);
+}
+
+.apple-screen {
+  position: relative;
+  width: min(100%, calc(100dvh * 1.42));
+  max-width: 1120px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.025), transparent 15%),
+    radial-gradient(ellipse at 50% 42%, rgba(150,255,170,.055), transparent 58%),
+    var(--screen-bg);
+  border: 1px solid rgba(216,255,228,.08);
+  box-shadow:
+    inset 0 0 28px rgba(0,0,0,.58),
+    0 0 0 1px rgba(0,0,0,.75);
+}
+
+.apple-screen::before {
+  content: "";
+  position: absolute;
+  inset: -6% -3%;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 61%, rgba(0,0,0,.23) 79%, rgba(0,0,0,.55) 100%);
+  z-index: 2;
+}
+
+.apple-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.012), transparent 12%, transparent 88%, rgba(255,255,255,.01));
+  z-index: 3;
+}
+
+.terminal {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: 50%;
+  width: 40ch;
+  height: 24em;
+  transform: translate(-50%, -50%);
+  font-size: var(--cell-font);
+  line-height: .96;
+  letter-spacing: 0;
+  color: var(--phosphor);
+  text-shadow:
+    0 0 1px rgba(248,255,248,.70),
+    0 0 3px var(--phosphor-shadow);
+}
+
+.title-box {
+  /*
+    Keep the v6 screen, font, scale, and behavior.
+    Only rebuild the title box so it reads more like the Apple Writer II reference:
+    wide, thick, plain, and software-like instead of logo-like.
+  */
+  width: 38ch;
+  margin: 2.65em auto 1.34em auto;
+  padding: 1.02em 1ch .92em;
+  border: .36em solid var(--phosphor-soft);
+  outline: .11em solid var(--phosphor-soft);
+  outline-offset: -.64em;
+  text-align: center;
+  line-height: 1.36;
+  white-space: nowrap;
+  box-shadow:
+    0 0 2px rgba(216,255,228,.32),
+    inset 0 0 0 .03em rgba(216,255,228,.24);
+}
+
+.title-box .title {
+  margin-bottom: .68em;
+}
+
+.menu-title {
+  margin-left: 4ch;
+  margin-bottom: .72em;
+  white-space: nowrap;
+}
+
+.menu {
+  margin-left: 3ch;
+  white-space: nowrap;
+}
+
+.menu button,
+.panel button,
+.panel a {
+  display: block;
+  width: fit-content;
+  color: var(--phosphor);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  line-height: .96;
+  letter-spacing: inherit;
+  text-transform: uppercase;
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  text-shadow: inherit;
+  -webkit-font-smoothing: none;
+}
+
+.menu button + button { margin-top: .28em; }
+
+button:hover,
+button:focus,
+a:hover,
+a:focus {
+  color: var(--screen-bg);
+  background: var(--phosphor);
+  outline: none;
+  text-shadow: none;
+}
+
+.help-line {
+  margin-left: 7ch;
+  margin-top: 1.02em;
+  white-space: nowrap;
+}
+
+.prompt-line {
+  margin-left: 5ch;
+  margin-top: .88em;
+  white-space: nowrap;
+}
+
+.input-line {
+  position: relative;
+  margin-left: 5ch;
+  margin-top: .58em;
+  white-space: pre;
+  line-height: .96;
+}
+
+#typedCommand { white-space: pre; }
+
+.cursor {
+  display: inline-block;
+  width: .68ch;
+  height: .84em;
+  background: var(--phosphor);
+  vertical-align: -.08em;
+  margin-left: 0;
+  box-shadow: none;
+  animation: blink 1s steps(2, start) infinite;
+}
+
+.message {
+  margin-left: 5ch;
+  margin-top: .78em;
+  color: var(--phosphor-soft);
+  white-space: nowrap;
+}
+
+.hidden { display: none; }
+
+.terminal.view-panel {
+  height: min(24em, calc(100dvh - 32px));
+}
+
+.panel {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1em 0 1.4em;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.panel::-webkit-scrollbar { display: none; }
+.panel .line { min-height: .96em; }
+.panel .sys { color: var(--phosphor-dim); }
+.panel .center { text-align: center; }
+.panel .spacer { height: .96em; }
+.panel .indent { margin-left: 2ch; }
+.panel .copy {
+  width: 38ch;
+  margin: 0 0 .96em 0;
+  white-space: normal;
+  line-height: 1.16;
+}
+.panel button { margin-top: 1em; }
+
+#commandInput {
+  display: inline-block;
+  width: 1ch;
+  min-width: 1ch;
+  max-width: 18ch;
+  height: 1em;
+  color: var(--phosphor);
+  background: transparent;
+  border: 0;
+  outline: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  line-height: .96;
+  letter-spacing: inherit;
+  text-transform: uppercase;
+  text-shadow: inherit;
+  caret-color: transparent;
+  vertical-align: baseline;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+#commandInput::selection {
+  color: var(--screen-bg);
+  background: var(--phosphor);
+}
+
+@keyframes blink {
+  0%, 48% { opacity: 1; }
+  49%, 100% { opacity: 0; }
+}
+
+@media (max-aspect-ratio: 4 / 3) {
+  .apple-screen { width: calc(100vw - 12px); }
+}
+
+@media (min-width: 601px) and (max-width: 1100px) {
+  :root {
+    --cell-font: clamp(12px, min(2.0vw, 2.62vh), 20px);
+  }
+
+  .viewport {
+    padding: clamp(4px, 1vw, 12px);
+  }
+}
+
+@media (min-width: 1400px) and (min-height: 850px) {
+  :root {
+    --cell-font: clamp(16px, min(1.72vw, 2.46vh), 24px);
+  }
+
+  .apple-screen {
+    max-width: 1240px;
+  }
+}
+
+@media (max-width: 600px) {
+  :root {
+    --cell-font: clamp(9.5px, 2.75vw, 14.5px);
+  }
+
+  .viewport {
+    align-items: start;
+    padding: 6px;
+  }
+
+  .apple-screen {
+    width: 100%;
+    min-height: 100dvh;
+    height: 100dvh;
+    aspect-ratio: auto;
+  }
+
+  .terminal {
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 100dvh;
+  }
+
+  .title-box {
+    margin-top: 2.4em;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor { animation: none; }
 }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="screen-wrap" id="sw">
-    <canvas id="c" tabindex="0" aria-label="Albion House Apple IIe terminal"></canvas>
-    <div class="scanlines"></div>
-    <div class="glare"></div>
-    <div class="led"></div>
+<div class="viewport">
+  <div class="apple-screen" role="application" aria-label="Albion House Apple IIe interface">
+    <div class="terminal" id="terminal">
+      <section id="homeView">
+        <div class="title-box" aria-label="Albion House title box">
+          <div class="title">ALBION HOUSE</div>
+          <div>COPYRIGHT 1993, ALBION NEBRASKA</div>
+          <div>FOUND IN A BASEMENT. STILL RUNNING.</div>
+        </div>
+
+        <div class="menu-title">FREQUENTLY USED CONTROL CHARACTERS:</div>
+
+        <nav class="menu" aria-label="Main menu">
+          <button type="button" data-command="r">[R] RUN KILLBOX PROGRAM.</button>
+          <button type="button" data-command="a">[A] LOAD ABOUT FILE.</button>
+          <button type="button" data-command="c">[C] LOAD CONTACT FILE.</button>
+        </nav>
+
+        <div class="help-line">(FOR HELP, ENTER "?")</div>
+        <div class="prompt-line">ENTER YOUR SELECTION OR RETURN</div>
+        <div class="input-line" id="inputLine">]<input id="commandInput" type="text" autocomplete="off" autocapitalize="characters" inputmode="text" aria-label="Command input" /><span class="cursor" aria-hidden="true"></span></div>
+        <div id="message" class="message"></div>
+      </section>
+
+      <section id="aboutView" class="panel hidden" tabindex="-1">
+        <div class="line sys">LOAD ABOUT FILE.</div>
+        <div class="spacer"></div>
+        <div class="line center">ABOUT ALBION HOUSE</div>
+        <div class="spacer"></div>
+
+        <p class="copy">Albion House is a small game studio made by two cousins. We grew up in different cities, but spent our summers together at our grandparents' house in Albion, Nebraska.</p>
+
+        <p class="copy">It was a beautiful old place filled with winding hallways, hidden rooms, and enough mystery to keep two kids exploring all summer. One day, in a corner of the basement, we made an exciting discovery: under a dust cover was an Apple IIe from 1983.</p>
+
+        <p class="copy">We had been playing The Secret of Mana on the SNES. We set down the controllers, turned on the old computer, and taught ourselves to make games in BASIC. That was the spark.</p>
+
+        <p class="copy">One cousin went to art school. The other studied computer science. Years later, those paths found each other again.</p>
+
+        <p class="copy">Albion House is named after the place where it started. We are still making games.</p>
+
+        <button type="button" data-command="home">[RETURN] MAIN MENU</button>
+      </section>
+
+      <section id="contactView" class="panel hidden" tabindex="-1">
+        <div class="line sys">LOAD CONTACT FILE.</div>
+        <div class="spacer"></div>
+        <div class="line center">CONTACT ALBION HOUSE</div>
+        <div class="spacer"></div>
+        <div class="line">FOR COLLABORATION, CORRESPONDENCE,</div>
+        <div class="line">PRESS, OR UNUSUAL PROPOSALS:</div>
+        <div class="spacer"></div>
+        <div class="line">SEND ELECTRONIC MAIL TO:</div>
+        <div class="spacer"></div>
+        <a href="mailto:hello@albionhouse.games">HELLO@ALBIONHOUSE.GAMES</a>
+        <div class="spacer"></div>
+        <div class="line">THE OPERATOR WILL RESPOND WHEN THE</div>
+        <div class="line">TERMINAL IS NEXT CHECKED.</div>
+        <div class="spacer"></div>
+        <button type="button" data-command="home">[RETURN] MAIN MENU</button>
+      </section>
+
+      <section id="helpView" class="panel hidden" tabindex="-1">
+        <div class="line sys">LOAD HELP FILE.</div>
+        <div class="spacer"></div>
+        <div class="line center">HELP</div>
+        <div class="spacer"></div>
+        <div class="line">VALID COMMANDS:</div>
+        <div class="spacer"></div>
+        <div class="line indent">R&nbsp;&nbsp;RUN KILLBOX PROGRAM.</div>
+        <div class="line indent">A&nbsp;&nbsp;LOAD ABOUT FILE.</div>
+        <div class="line indent">C&nbsp;&nbsp;LOAD CONTACT FILE.</div>
+        <div class="line indent">?&nbsp;&nbsp;DISPLAY HELP.</div>
+        <div class="line indent">0&nbsp;&nbsp;RETURN TO MAIN MENU.</div>
+        <div class="spacer"></div>
+        <div class="line">SYSTEM STATUS:</div>
+        <div class="spacer"></div>
+        <div class="line indent">KILLBOX PROGRAM: ALPHA</div>
+        <div class="line indent">TERMINAL: STILL RUNNING</div>
+        <div class="spacer"></div>
+        <button type="button" data-command="home">[RETURN] MAIN MENU</button>
+      </section>
+
+      <section id="runView" class="panel hidden" tabindex="-1">
+        <div class="line sys">]BRUN KILLBOX</div>
+        <div class="spacer"></div>
+        <div class="line">LOADING KILLBOX PROGRAM.</div>
+      </section>
+    </div>
   </div>
 </div>
+
 <script>
-const FONT={" ":[0,0,0,0,0,0,0,0],"!":[8,8,8,8,8,0,8,0],'"':[20,20,20,0,0,0,0,0],"#":[20,20,62,20,62,20,20,0],"$":[8,30,40,28,10,60,8,0],"%":[48,50,4,8,16,38,6,0],"&":[16,40,40,16,42,36,26,0],"'":[8,16,16,0,0,0,0,0],"(":[4,8,16,16,16,8,4,0],")":[16,8,4,4,4,8,16,0],"*":[0,20,8,62,8,20,0,0],"+":[0,8,8,62,8,8,0,0],",":[0,0,0,0,0,8,8,16],"-":[0,0,0,28,0,0,0,0],".":[0,0,0,0,0,0,8,0],"/":[2,4,8,16,32,0,0,0],"0":[28,34,34,34,34,34,28,0],"1":[8,24,8,8,8,8,28,0],"2":[28,34,2,4,8,16,62,0],"3":[28,34,2,12,2,34,28,0],"4":[4,12,20,36,62,4,4,0],"5":[62,32,60,2,2,34,28,0],"6":[12,16,32,60,34,34,28,0],"7":[62,2,4,8,16,32,32,0],"8":[28,34,34,28,34,34,28,0],"9":[28,34,34,30,2,4,24,0],":":[0,8,0,0,0,8,0,0],";":[0,8,0,0,0,8,8,16],"<":[2,4,8,16,8,4,2,0],"=":[0,0,62,0,62,0,0,0],">":[32,16,8,4,8,16,32,0],"?":[28,34,4,8,8,0,8,0],"@":[28,34,42,46,42,32,30,0],"A":[28,34,34,62,34,34,34,0],"B":[60,34,34,60,34,34,60,0],"C":[28,34,32,32,32,34,28,0],"D":[60,34,34,34,34,34,60,0],"E":[62,32,32,60,32,32,62,0],"F":[62,32,32,60,32,32,32,0],"G":[28,34,32,38,34,34,28,0],"H":[34,34,34,62,34,34,34,0],"I":[28,8,8,8,8,8,28,0],"J":[14,4,4,4,4,36,24,0],"K":[34,36,40,48,40,36,34,0],"L":[32,32,32,32,32,32,62,0],"M":[34,51,45,34,34,34,34,0],"N":[34,50,42,38,34,34,34,0],"O":[28,34,34,34,34,34,28,0],"P":[60,34,34,60,32,32,32,0],"Q":[28,34,34,34,40,36,26,0],"R":[60,34,34,60,40,36,34,0],"S":[28,34,32,28,2,34,28,0],"T":[62,8,8,8,8,8,8,0],"U":[34,34,34,34,34,34,28,0],"V":[34,34,34,20,20,8,8,0],"W":[34,34,34,34,45,51,34,0],"X":[34,34,20,8,20,34,34,0],"Y":[34,34,20,8,8,8,8,0],"Z":[62,2,4,8,16,32,62,0],"[":[12,8,8,8,8,8,12,0],"]":[24,8,8,8,8,8,24,0]};
-'abcdefghijklmnopqrstuvwxyz'.split('').forEach(c=>FONT[c]=FONT[c.toUpperCase()]);
+const homeView = document.getElementById("homeView");
+const aboutView = document.getElementById("aboutView");
+const contactView = document.getElementById("contactView");
+const helpView = document.getElementById("helpView");
+const runView = document.getElementById("runView");
+const terminal = document.getElementById("terminal");
+const commandInput = document.getElementById("commandInput");
+const inputLine = document.getElementById("inputLine");
+const message = document.getElementById("message");
 
-const canvas=document.getElementById('c');
-const ctx=canvas.getContext('2d');
-const CW=560,CH=384;
-canvas.width=CW;canvas.height=CH;
-const COLS=40,ROWS=24;
-const CX=CW/COLS,CY=CH/ROWS,PX=2;
-const AMBER='#ffaa00',AMBER_DIM='#996600',AMBER_BRT='#ffd060',BG='#000';
+const KILLBOX_URL = "https://albion-house.github.io/killbox/";
+const views = [homeView, aboutView, contactView, helpView, runView];
+let activeView = "home";
 
-const buf=[];
-for(let r=0;r<ROWS;r++){buf[r]=[];for(let c=0;c<COLS;c++)buf[r][c]={ch:' ',mode:0};}
-
-function setCell(r,c,ch,mode=0){if(r<0||r>=ROWS||c<0||c>=COLS)return;buf[r][c]={ch:ch||' ',mode};}
-function clearBuf(){for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)buf[r][c]={ch:' ',mode:0};}
-function clearRow(r){for(let c=0;c<COLS;c++)buf[r][c]={ch:' ',mode:0};}
-
-let cursorOn=true,cursorR=0,cursorC=0,showCursor=false,hoverLink=null,inputBuffer='',bootComplete=false;
-let activeScreen='boot',aboutScroll=0,aboutLines=[];
-let touchStartY=0,touchStartScroll=0,touchActive=false;
-
-function wrapText(text,width){
-  const words=text.toUpperCase().split(/\s+/).filter(Boolean);
-  const lines=[];
-  let line='';
-  for(const word of words){
-    if(!line){
-      line=word;
-      continue;
-    }
-    if((line+' '+word).length<=width){
-      line+=' '+word;
-    }else{
-      lines.push(line);
-      line=word;
-    }
-  }
-  if(line) lines.push(line);
-  return lines;
+function getCommand() {
+  return commandInput.value.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-function buildAboutLines(){
-  const lines=['] LOAD "ABOUT.TXT"','', 'ABOUT ALBION HOUSE',''];
-  const paragraphs = [
-    'Albion House is an independent game studio founded by two cousins.',
-    "Growing up, we lived in different cities but spent our summers together at our grandparents' house in Albion, Nebraska. It was a beautiful old place filled with winding hallways, hidden rooms, and enough mysteries for two fish out of water to spend an entire summer exploring.",
-    'We played video games in the basement, learned to make our own on an Apple IIe, and spent countless hours imagining, and asking, "What if?"',
-    'Eventually, one cousin went to art school. The other studied computer science. Years later, those paths came back together.',
-    'Albion House is named after the place where it all started.',
-  ];
-  for (const paragraph of paragraphs) {
-    const wrapped = wrapText(paragraph, COLS);
-    for (const line of wrapped) {
-      lines.push(line);
-      lines.push('');
-    }
-    lines.push('');
-  }
-  lines.push(RULE);
-  lines.push('[CATALOG]   [KILLBOX]   [CONTACT]');
-  return lines;
+function updateInputWidth() {
+  const length = Math.max(commandInput.value.length, 1);
+  commandInput.style.width = Math.min(length, 18) + "ch";
 }
 
-function renderAbout(){
-  clearBuf();
-  clearLinks();
-  showCursor=false;
-  const viewRows=21;
-  const maxScroll=Math.max(0, aboutLines.length-viewRows);
-  aboutScroll=Math.max(0, Math.min(aboutScroll, maxScroll));
-  const visible=aboutLines.slice(aboutScroll, aboutScroll+viewRows);
-  visible.forEach((line, idx)=>{
-    if(line===RULE){
-      writeStr(idx,0,line,2);
-    }else if(line==='ABOUT ALBION HOUSE'){
-      writeStr(idx,0,line,1);
-    }else if(line==='[CATALOG]   [KILLBOX]   [CONTACT]'){
-      writeStr(idx,0,'[CATALOG]',1);writeStr(idx,12,'[KILLBOX]',1);writeStr(idx,24,'[CONTACT]',1);
-      addLink(idx,0,9,showCatalog);addLink(idx,12,9,showKillbox);addLink(idx,24,9,showContact);
-    }else{
-      writeStr(idx,0,line,idx===0?2:0);
-    }
+function clearCommand() {
+  commandInput.value = "";
+  updateInputWidth();
+}
+
+function focusInput() {
+  if (activeView !== "home") return;
+  setTimeout(() => commandInput.focus({ preventScroll: true }), 0);
+}
+
+function show(view, name) {
+  views.forEach(item => item.classList.add("hidden"));
+  view.classList.remove("hidden");
+  activeView = name;
+  message.textContent = "";
+  clearCommand();
+
+  if (name === "home") {
+    terminal.classList.remove("view-panel");
+  } else {
+    terminal.classList.add("view-panel");
+    view.scrollTop = 0;
+    setTimeout(() => view.focus({ preventScroll: true }), 0);
+  }
+
+  window.scrollTo(0, 0);
+  focusInput();
+}
+
+function returnHome() {
+  show(homeView, "home");
+}
+
+function runKillbox() {
+  show(runView, "run");
+  setTimeout(() => {
+    window.location.href = KILLBOX_URL;
+  }, 520);
+}
+
+function handleCommand(value) {
+  const v = String(value || getCommand()).trim().toLowerCase().replace(/\s+/g, " ");
+
+  if (v === "" || v === "0" || v === "home" || v === "menu" || v === "return" || v === "main menu") {
+    returnHome();
+    return;
+  }
+
+  if (["r", "run", "run killbox", "killbox", "killbox program", "brun killbox", "1"].includes(v)) {
+    runKillbox();
+    return;
+  }
+
+  if (["a", "about", "about file", "load about", "load about file", "2"].includes(v)) {
+    show(aboutView, "about");
+    return;
+  }
+
+  if (["c", "contact", "contact file", "load contact", "load contact file", "email", "3"].includes(v)) {
+    show(contactView, "contact");
+    return;
+  }
+
+  if (["?", "help", "additional functions", "additional functions menu", "4"].includes(v)) {
+    show(helpView, "help");
+    return;
+  }
+
+  if (activeView !== "home") {
+    returnHome();
+    return;
+  }
+
+  message.textContent = "BAD COMMAND OR FILE NAME";
+  clearCommand();
+}
+
+document.querySelectorAll("[data-command]").forEach(item => {
+  item.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    handleCommand(item.dataset.command);
   });
-  writeStr(22,0,'SCROLL FOR MORE',2);
-  writeStr(23,0,']',2);
-  setCell(23,1,' ',2);
-  cursorR=23;
-  cursorC=2;
-  showCursor=true;
-  renderFrame();
-}
-
-function drawChar(r,c,ch,mode){
-  const x=c*CX,y=r*CY;
-  const bits=FONT[ch]||FONT[' '];
-  let fg,bg;
-  if(mode===3){fg=BG;bg=AMBER;}
-  else{bg=BG;fg=mode===1?AMBER_BRT:mode===2?AMBER_DIM:AMBER;}
-  ctx.fillStyle=bg;ctx.fillRect(x,y,CX,CY);
-  ctx.fillStyle=fg;
-  for(let row=0;row<8;row++){
-    const byte=bits[row];
-    for(let bit=6;bit>=0;bit--){
-      if(byte&(1<<bit)){
-        ctx.fillRect(x+(6-bit)*PX, y+row*PX, PX, PX);
-      }
-    }
-  }
-}
-
-function renderFrame(){
-  ctx.fillStyle=BG;ctx.fillRect(0,0,CW,CH);
-  for(let r=0;r<ROWS;r++){
-    for(let c=0;c<COLS;c++){
-      const{ch,mode}=buf[r][c];
-      const isCur=showCursor&&cursorOn&&r===cursorR&&c===cursorC;
-      const isHover=hoverLink&&r===hoverLink.r&&c>=hoverLink.cs&&c<=hoverLink.ce;
-      drawChar(r,c,ch,isCur||isHover?3:mode);
-    }
-  }
-}
-
-setInterval(()=>{cursorOn=!cursorOn;if(showCursor)renderFrame();},530);
-
-function writeStr(r,c,str,mode=0){
-  const up=str.toUpperCase();
-  for(let i=0;i<up.length;i++){if(c+i>=COLS)break;setCell(r,c+i,up[i],mode);}
-}
-
-function syncPrompt(){
-  clearRow(23);
-  writeStr(23,0,']',2);
-  setCell(23,1,' ',2);
-  writeStr(23,2,inputBuffer,1);
-  cursorR=23;
-  cursorC=Math.min(2+inputBuffer.length,COLS-1);
-  showCursor=true;
-}
-
-function centerText(r,str,mode=0){
-  writeStr(r,Math.max(0,Math.floor((COLS-str.length)/2)),str,mode);
-}
-
-function sleep(ms){
-  return new Promise(resolve=>setTimeout(resolve,ms));
-}
-
-const BOOT_CHARS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?-.:/[]<>=';
-
-function randomBootChar(){
-  return BOOT_CHARS[Math.floor(Math.random()*BOOT_CHARS.length)];
-}
-
-function renderBootNoise(density){
-  clearBuf();
-  for(let r=0;r<ROWS;r++){
-    for(let c=0;c<COLS;c++){
-      const edgeBand=r<2||r>ROWS-3;
-      const chance=edgeBand?0.08:density;
-      if(Math.random()<chance){
-        setCell(r,c,randomBootChar(),Math.random()<0.15?1:2);
-      }
-    }
-  }
-  renderFrame();
-}
-
-const links=[];
-function clearLinks(){links.length=0;hoverLink=null;canvas.style.cursor='default';}
-function addLink(r,cs,len,fn){links.push({r,cs,ce:cs+len-1,fn});}
-
-function normalizeCommand(text){
-  return text.trim().toUpperCase().replace(/^\[|\]$/g,'').replace(/^>\s*/,'').replace(/\s+/g,' ');
-}
-
-function hitLink(e){
-  const rect=canvas.getBoundingClientRect();
-  const col=Math.floor((e.clientX-rect.left)*(CW/rect.width)/CX);
-  const row=Math.floor((e.clientY-rect.top)*(CH/rect.height)/CY);
-  return links.find(l=>l.r===row&&col>=l.cs&&col<=l.ce);
-}
-
-canvas.addEventListener('mousemove',e=>{
-  const link=hitLink(e);
-  canvas.style.cursor=link?'pointer':'default';
-  if(link!==hoverLink){
-    hoverLink=link;
-    renderFrame();
-  }
-});
-canvas.addEventListener('mouseleave',()=>{
-  if(hoverLink){
-    hoverLink=null;
-    canvas.style.cursor='default';
-    renderFrame();
-  }
-});
-canvas.addEventListener('click',e=>{canvas.focus();const h=hitLink(e);if(h)h.fn();});
-canvas.addEventListener('wheel',e=>{
-  if(activeScreen!=='about') return;
-  e.preventDefault();
-  aboutScroll += e.deltaY > 0 ? 2 : -2;
-  renderAbout();
-},{passive:false});
-
-canvas.addEventListener('touchstart',e=>{
-  if(activeScreen!=='about' || e.touches.length!==1) return;
-  touchActive=true;
-  touchStartY=e.touches[0].clientY;
-  touchStartScroll=aboutScroll;
-},{passive:true});
-
-canvas.addEventListener('touchmove',e=>{
-  if(activeScreen!=='about' || !touchActive || e.touches.length!==1) return;
-  e.preventDefault();
-  const deltaY=touchStartY-e.touches[0].clientY;
-  aboutScroll=touchStartScroll+Math.round(deltaY/14);
-  renderAbout();
-},{passive:false});
-
-canvas.addEventListener('touchend',()=>{
-  touchActive=false;
 });
 
-canvas.addEventListener('touchcancel',()=>{
-  touchActive=false;
+document.querySelectorAll("a").forEach(link => {
+  link.addEventListener("click", event => {
+    event.stopPropagation();
+  });
 });
 
-function runCommand(cmd){
-  const command=normalizeCommand(cmd);
-  inputBuffer='';
-  if(!command){
-    syncPrompt();
-    renderFrame();
-    return;
-  }
-  if(command==='CATALOG' || command==='HOME' || command==='[CATALOG]'){
-    showCatalog();
-    return;
-  }
-  if(command==='ABOUT' || command==='ABOUT.TXT' || command==='[ABOUT]'){
-    showAbout();
-    return;
-  }
-  if(command==='CONTACT' || command==='CONTACT.TXT' || command==='HELLO@ALBIONHOUSE.GAMES' || command==='[CONTACT]'){
-    showContact();
-    return;
-  }
-  if(command==='KILLBOX' || command==='KILLBOX.BAS' || command==='PLAY' || command==='PLAY NOW' || command==='RUN KILLBOX' || command==='RUN KILLBOX V0.1'){
-    showKillbox();
-    return;
-  }
-  syncPrompt();
-  renderFrame();
-}
+commandInput.addEventListener("input", () => {
+  const cursorPos = commandInput.selectionStart || commandInput.value.length;
+  commandInput.value = commandInput.value.toUpperCase().slice(0, 18);
+  try {
+    commandInput.setSelectionRange(cursorPos, cursorPos);
+  } catch (error) {}
+  updateInputWidth();
+});
 
-window.addEventListener('keydown',e=>{
-  if(!bootComplete) return;
-  if(e.metaKey||e.ctrlKey||e.altKey) return;
-  if(activeScreen==='about' && (e.key==='ArrowDown' || e.key==='PageDown' || e.key===' ')){
-    e.preventDefault();
-    aboutScroll += e.key==='ArrowDown' ? 1 : 2;
-    renderAbout();
+commandInput.addEventListener("keydown", event => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    handleCommand();
     return;
   }
-  if(activeScreen==='about' && (e.key==='ArrowUp' || e.key==='PageUp')){
-    e.preventDefault();
-    aboutScroll -= e.key==='ArrowUp' ? 1 : 2;
-    renderAbout();
-    return;
-  }
-  if(e.key==='Backspace'){
-    e.preventDefault();
-    inputBuffer=inputBuffer.slice(0,-1);
-    syncPrompt();
-    renderFrame();
-    return;
-  }
-  if(e.key==='Enter'){
-    e.preventDefault();
-    runCommand(inputBuffer);
-    return;
-  }
-  if(e.key==='Escape'){
-    e.preventDefault();
-    inputBuffer='';
-    syncPrompt();
-    renderFrame();
-    return;
-  }
-  if(e.key.length===1 && /^[\x20-\x7E]$/.test(e.key)){
-    e.preventDefault();
-    if(inputBuffer.length<COLS-4){
-      inputBuffer+=e.key.toUpperCase();
-      syncPrompt();
-      renderFrame();
-    }
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    returnHome();
   }
 });
 
-function boot(){
-  activeScreen='boot';
-  bootSequence();
-}
+inputLine.addEventListener("click", event => {
+  event.stopPropagation();
+  focusInput();
+});
 
-const RULE='========================================';
+document.addEventListener("keydown", event => {
+  if (event.target === commandInput) return;
+  if (event.ctrlKey || event.metaKey || event.altKey) return;
 
-async function bootSequence(){
-  clearLinks();
-  showCursor=false;
-  inputBuffer='';
-  clearBuf();
-  ctx.fillStyle='#ffe090';ctx.fillRect(0,0,CW,CH);
-  await sleep(35);
-  ctx.fillStyle='#704000';ctx.fillRect(0,0,CW,CH);
-  await sleep(35);
-  ctx.fillStyle=BG;ctx.fillRect(0,0,CW,CH);
-  renderBootNoise(0.18);
-  await sleep(90);
-  renderBootNoise(0.08);
-  await sleep(90);
-  clearBuf();
-  centerText(8,'APPLE ][e',1);
-  centerText(10,'COPYRIGHT APPLE COMPUTER',2);
-  centerText(11,'1977, 1979, 1980, 1982',2);
-  centerText(13,'BOOT SECTOR OK',1);
-  renderFrame();
-  await sleep(550);
-  clearBuf();
-  renderFrame();
-  await showCatalog(true);
-  bootComplete=true;
-}
-
-async function showCatalog(animated=false){
-  activeScreen='catalog';
-  clearLinks();clearBuf();showCursor=false;inputBuffer='';
-  const steps=[
-    ()=>writeStr(0,0,'] CATALOG',2),
-    ()=>writeStr(2,0,'ALBION HOUSE',1),
-    ()=>writeStr(3,0,'EST. 1993',2),
-    ()=>writeStr(6,0,"A MYSTERIOUS HOUSE",1),
-    ()=>writeStr(7,0,"IN ALBION, NEBRASKA",1),
-    ()=>writeStr(10,0,"TWO COUSINS. ONE QUESTION.",1),
-    ()=>writeStr(13,0,"WHAT IF?",1),
-    ()=>writeStr(14,0,RULE,2),
-    ()=>writeStr(16,0,'RUN KILLBOX V0.1',1),
-    ()=>writeStr(18,0,'ABOUT.TXT',1),
-    ()=>writeStr(20,0,'CONTACT.TXT',1),
-    ()=>writeStr(22,0,'READY.',2),
-  ];
-  if(animated){
-    for(const step of steps){
-      step();
-      renderFrame();
-      await sleep(step === steps[0] ? 110 : 45);
-    }
-  }else{
-    for(const step of steps) step();
-    renderFrame();
+  if (event.key === "Enter") {
+    event.preventDefault();
+    handleCommand();
+    return;
   }
-  addLink(16,0,16,showKillbox);
-  addLink(18,0,12,showAbout);
-  addLink(17,0,12,showAbout);
-  addLink(19,0,12,showAbout);
-  addLink(20,0,11,showContact);
-  syncPrompt();
-  renderFrame();
-}
 
-function showAbout(){
-  activeScreen='about';
-  aboutLines=buildAboutLines();
-  aboutScroll=0;
-  renderAbout();
-}
+  if (event.key === "Escape") {
+    event.preventDefault();
+    returnHome();
+    return;
+  }
 
-function showKillbox(){
-  activeScreen='killbox';
-  clearLinks();clearBuf();showCursor=false;inputBuffer='';
-  writeStr(0,0,'] LOAD "KILLBOX.BAS"',2);
-  writeStr(2,0,'KILLBOX.BAS       V0.1',1);
-  writeStr(4,0,'KILLBOX IS AN ARCADE SURVIVAL GAME.');
-  writeStr(5,0,'HOW LONG CAN YOU LAST?');
-  writeStr(7,0,'IN ACTIVE DEVELOPMENT.',2);
-  writeStr(9,0,RULE,2);
-  writeStr(11,0,'> PLAY NOW',1);
-  writeStr(21,0,RULE,2);
-  writeStr(22,0,'[CATALOG]',1);writeStr(22,12,'[ABOUT]  ',1);writeStr(22,24,'[CONTACT]',1);
-  addLink(11,0,10,()=>window.open('https://albion-house.github.io/killbox/','_blank'));
-  addLink(22,0,9,showCatalog);addLink(22,12,9,showAbout);addLink(22,24,9,showContact);
-  syncPrompt();
-  renderFrame();
-}
+  if (event.key.length === 1 && activeView === "home") {
+    event.preventDefault();
+    commandInput.value = (commandInput.value + event.key.toUpperCase()).slice(0, 18);
+    updateInputWidth();
+    focusInput();
+  }
+});
 
-function showContact(){
-  activeScreen='contact';
-  clearLinks();clearBuf();showCursor=false;inputBuffer='';
-  writeStr(0,0,'] LOAD "CONTACT.TXT"',2);
-  writeStr(2,0,'GET IN TOUCH',1);
-  writeStr(4,0,'HAVE A QUESTION?');
-  writeStr(5,0,'WANT TO COLLABORATE?');
-  writeStr(7,0,'HELLO@ALBIONHOUSE.GAMES',1);
-  writeStr(21,0,RULE,2);
-  writeStr(22,0,'[CATALOG]',1);writeStr(22,12,'[KILLBOX]',1);writeStr(22,24,'[ABOUT]  ',1);
-  addLink(7,0,23,()=>window.location.href='mailto:hello@albionhouse.games');
-  addLink(22,0,9,showCatalog);addLink(22,12,9,showKillbox);addLink(22,24,9,showAbout);
-  syncPrompt();
-  renderFrame();
-}
+document.addEventListener("click", event => {
+  if (event.target.closest("button, a")) return;
+  focusInput();
+});
 
-document.getElementById('sw').style.boxShadow='inset 0 0 50px rgba(0,0,0,.65),0 0 20px rgba(160,80,0,.2)';
-boot();
+window.addEventListener("load", () => {
+  updateInputWidth();
+});
 </script>
 </body>
 </html>
